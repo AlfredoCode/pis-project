@@ -8,5 +8,7 @@ public static class ServiceCollectionExtensions
 {
     public static void AddBLServices(this IServiceCollection services)
     {
+        services.AddScoped<ProjectService>();
+        services.AddScoped<UserService>();
     }
 }

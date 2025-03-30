@@ -3,6 +3,8 @@ using Microsoft.Extensions.DependencyInjection;
 
 using Npgsql;
 
+using PRegSys.DAL.Repositories;
+
 namespace PRegSys.DAL;
 
 public static class ServiceCollectionExtensions
@@ -18,5 +20,7 @@ public static class ServiceCollectionExtensions
             });
             o.UseSnakeCaseNamingConvention();
         });
+        services.AddScoped<ProjectRepository>();
+        services.AddScoped<UserRepository>();
     }
 }
