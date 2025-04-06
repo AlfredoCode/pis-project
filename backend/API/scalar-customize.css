@@ -1,0 +1,40 @@
+﻿/*
+ *  Customize Scalar UI (for API documentation/playground)
+ */
+
+.section-header .label {
+    font-family: var(--scalar-font-code);
+
+    section[id] &::before {
+        margin-inline-end: 1ch;
+        color: var(--scalar-color-purple);
+        font-size: smaller;
+        background-color: color-mix(in srgb, currentColor 15%, transparent);
+        padding: 0.1em 0.5em;
+    }
+    section[id*="/GET/"] &::before { content: 'GET'; color: var(--scalar-color-blue); }
+    section[id*="/POST/"] &::before { content: 'POST'; color: var(--scalar-color-green); }
+    section[id*="/PUT/"] &::before { content: 'PUT'; color: var(--scalar-color-orange); }
+    section[id*="/PATCH/"] &::before { content: 'PATCH'; color: var(--scalar-color-yellow); }
+    section[id*="/DELETE/"] &::before { content: 'DELETE'; color: var(--scalar-color-red); }
+}
+
+.sidebar-heading {
+  .sidebar-heading-link { gap: 8px; justify-content: unset; }
+  .sidebar-heading-link-method { order: -1; }
+  .sidebar-heading-link-method .sidebar-heading-type { font-size: 0.9em; }
+}
+
+.property-enum-value {
+    font-family: var(--scalar-font-code);
+}
+
+/* Hide empty property descriptions */
+.property-description:has(> :only-child:empty) {
+    margin: 0;
+}
+
+/* properties marked as read-only should only appear in GET requests */
+.section:not([id*="/GET/"]) .request-body-schema .property:has(> .property-heading > .property-read-only) {
+    display: none;
+}

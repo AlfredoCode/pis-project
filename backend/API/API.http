@@ -1,0 +1,54 @@
+@API_HostAddress = https://localhost:7117/api
+
+GET {{API_HostAddress}}/users
+Accept: application/json
+
+###
+
+GET {{API_HostAddress}}/students
+Accept: application/json
+
+###
+
+GET {{API_HostAddress}}/teachers
+Accept: application/json
+
+###
+
+GET {{API_HostAddress}}/users/1
+Accept: application/json
+
+###
+
+GET {{API_HostAddress}}/users/xfooba01
+Accept: application/json
+
+###
+
+GET {{API_HostAddress}}/projects
+Accept: application/json
+
+###
+
+GET {{API_HostAddress}}/projects/1
+Accept: application/json
+
+###
+
+GET {{API_HostAddress}}/projects?course=ICP
+Accept: application/json
+
+###
+
+POST {{API_HostAddress}}/projects
+Content-Type: application/json
+
+{
+    "name": "Jednoduchá aplikace v C++",
+    "description": "Vytvořte aplikaci, která bude dělat Foo Bar.",
+    "course": "ICP",
+    "deadline": "2025-05-30T21:59:59Z",
+    "maxTeamSize": 3,
+    "capacity": 40,
+    "ownerId": 1
+}
