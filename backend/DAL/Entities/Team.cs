@@ -1,0 +1,44 @@
+﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
+
+namespace PRegSys.DAL.Entities
+{
+    public class Team : IEntity
+    {
+        public required int Id { get; set; }
+        public required string Description { get; set; } = string.Empty;
+        public required int Size { get; set; }
+
+        public required int LeaderId { get; set; }
+        public required Student Leader { get; set; } = null!;
+
+        public required int ProjectId { get; set; }
+        [JsonIgnore]
+        public Project Project { get; set; } = null!;
+
+        public ICollection<Student> Students { get; set; } = new List<Student>();
+        public ICollection<SignRequest> SignRequests { get; set; } = new List<SignRequest>();
+    }
+
+
+    file class Configuration : IEntityTypeConfiguration<Team>
+    {
+        public void Configure(EntityTypeBuilder<Team> builder)
+        {
+            builder.HasOne(t => t.Leader)
+                .WithMany()
+                .HasForeignKey(t => t.LeaderId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.HasOne(t => t.Project)
+                .WithMany(p => p.Teams)
+                .HasForeignKey(t => t.ProjectId);
+
+            builder.HasMany(t => t.Students)
+                .WithMany()
+                .UsingEntity(j => j.ToTable("TeamMembers"));
+        }
+    }
+}

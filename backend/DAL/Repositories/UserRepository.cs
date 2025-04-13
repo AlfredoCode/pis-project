@@ -15,22 +15,22 @@ public class UserRepository(PregsysDbContext db)
     public async Task<User?> GetUserByUsername(string username)
         => await db.Users.FirstOrDefaultAsync(u => u.Username == username);
 
-    public async Task<User> CreateUser(User project)
+    public async Task<User> CreateUser(User user)
     {
-        db.Users.Add(project);
+        db.Users.Add(user);
         await db.SaveChangesAsync();
-        return project;
+        return user;
     }
 
-    public async Task<User> UpdateUser(User project)
+    public async Task<User> UpdateUser(User user)
     {
-        db.Users.Update(project);
+        db.Users.Update(user);
         await db.SaveChangesAsync();
-        return project;
+        return user;
     }
 
     public async Task DeleteUser(int id)
     {
-        await db.Users.Where(p => p.Id == id).ExecuteDeleteAsync();
+        await db.Users.Where(u => u.Id == id).ExecuteDeleteAsync();
     }
 }

@@ -10,6 +10,10 @@ public class PregsysDbContext(DbContextOptions<PregsysDbContext> options) : DbCo
     public DbSet<Teacher> Teachers => Set<Teacher>();
     public DbSet<Student> Students => Set<Student>();
     public DbSet<Project> Projects => Set<Project>();
+    public DbSet<Team> Teams => Set<Team>();
+    public DbSet<SignRequest> SignRequests => Set<SignRequest>();
+    public DbSet<Evaluation> Evaluations => Set<Evaluation>();
+    public DbSet<Solution> Solutions => Set<Solution>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

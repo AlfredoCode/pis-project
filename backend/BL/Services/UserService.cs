@@ -29,4 +29,19 @@ public class UserService(UserRepository users)
     {
         return await users.GetUserByUsername(username);
     }
+
+    public async Task<User> CreateUser(User user)
+    {
+        return await users.CreateUser(user);
+    }
+
+    public async Task<User> UpdateUser(User user)
+    {
+        return await users.UpdateUser(user);
+    }
+
+    public async Task DeleteUser(int id)
+    {
+        await users.DeleteUser(id);
+    }
 }

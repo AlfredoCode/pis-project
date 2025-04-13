@@ -16,7 +16,9 @@ public class Project : IEntity
     public required Instant Deadline { get; set; }
 
     public required int OwnerId { get; set; }
-    public required Teacher Owner { get; set; }
+    public required Teacher Owner { get; set; } = null!;
+
+    public required ICollection<Team> Teams { get; set; } = new List<Team>();
 }
 
 file class Configuration : IEntityTypeConfiguration<Project>

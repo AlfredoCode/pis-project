@@ -1,0 +1,28 @@
+﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore;
+
+namespace PRegSys.DAL.Entities
+{
+    public class Solution : IEntity
+    {
+        public required int Id { get; set; }
+        public required byte[] File { get; set; }
+        public required DateTime SubmissionDate { get; set; }
+
+        public required int ProjectId { get; set; }
+        public required Project Project { get; set; } = null!;
+
+        public required int TeamId { get; set; }
+        public required Team Team { get; set; } = null!;
+
+        public int EvaluationId { get; set; }
+        public required Evaluation Evaluation { get; set; } = null!;
+    }
+
+    file class Configuration : IEntityTypeConfiguration<Solution>
+    {
+        public void Configure(EntityTypeBuilder<Solution> builder)
+        {
+        }
+    }
+}
