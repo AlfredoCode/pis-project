@@ -21,7 +21,7 @@ public class SignUpRequestService(SignUpRequestRepository signUpRequests)
         return await signUpRequests.GetRequestsByTeam(teamId);
     }
 
-    public async Task<SignUpRequest> SubmitSolution(SignUpRequest signUpRequest)
+    public async Task<SignUpRequest> CreateRequest(SignUpRequest signUpRequest)
     {
         return await signUpRequests.CreateRequest(signUpRequest);
     }
