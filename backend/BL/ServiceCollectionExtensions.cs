@@ -13,6 +13,6 @@ public static class ServiceCollectionExtensions
         services.AddScoped<TeamService>();
         services.AddScoped<EvaluationService>();
         services.AddScoped<SolutionService>();
-        services.AddScoped<SignRequestService>();
+        services.AddScoped<SignUpRequestService>();
     }
 }

@@ -54,8 +54,6 @@ app.RegisterEndpointDefinitions();
 
 app.Run();
 
-app.Run();
-
 string? TryReadAllText(string fileName)
 {
     try

@@ -25,6 +25,6 @@ public static class ServiceCollectionExtensions
         services.AddScoped<TeamRepository>();
         services.AddScoped<SolutionRepository>();
         services.AddScoped<EvaluationRepository>();
-        services.AddScoped<SignRequestRepository>();
+        services.AddScoped<SignUpRequestRepository>();
     }
 }

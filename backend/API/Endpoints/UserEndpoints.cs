@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.EntityFrameworkCore;
 using PRegSys.BL.Services;
 using PRegSys.DAL.Entities;
 
@@ -37,16 +38,16 @@ public class UserEndpoints : IEndpointDefinition
                 : TypedResults.NotFound();
         }).WithName("GetUserByUsername");
 
-        group.MapPost("/users", async Task<Results<Created<User>, BadRequest>> (UserService users, User user) =>
+        group.MapPost("/users", async Task<Results<Created<User>, BadRequest<string>>> (UserService users, User user) =>
         {
             try
             {
                 var createdUser = await users.CreateUser(user);
                 return TypedResults.Created($"/users/{createdUser.Id}", createdUser);
             }
-            catch
+            catch (DbUpdateException ex)
             {
-                return TypedResults.BadRequest();
+                return TypedResults.BadRequest(ex.InnerException?.Message ?? ex.Message);
             }
         }).WithName("CreateUser");
 

@@ -1,5 +1,5 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
+using NodaTime;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
@@ -67,8 +67,8 @@ namespace PRegSys.DAL.Migrations
                 {
                     id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    creation_date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    state = table.Column<string>(type: "text", nullable: false),
+                    creation_date = table.Column<Instant>(type: "timestamp with time zone", nullable: false),
+                    state = table.Column<int>(type: "integer", nullable: false),
                     student_id = table.Column<int>(type: "integer", nullable: false),
                     team_id = table.Column<int>(type: "integer", nullable: false)
                 },
@@ -96,7 +96,7 @@ namespace PRegSys.DAL.Migrations
                     id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     file = table.Column<byte[]>(type: "bytea", nullable: false),
-                    submission_date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    submission_date = table.Column<Instant>(type: "timestamp with time zone", nullable: false),
                     project_id = table.Column<int>(type: "integer", nullable: false),
                     team_id = table.Column<int>(type: "integer", nullable: false),
                     evaluation_id = table.Column<int>(type: "integer", nullable: false)

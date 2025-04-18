@@ -1,43 +1,44 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
 using PRegSys.BL.Services;
 using PRegSys.DAL.Entities;
+using PRegSys.DAL.Enums;
 
 namespace PRegSys.API.Endpoints;
 
-public class SignRequestEndpoints : IEndpointDefinition
+public class SignUpRequestEndpoints : IEndpointDefinition
 {
     public void RegisterEndpoints(RouteGroupBuilder group)
     {
-        group.MapGet("/signrequests/{id}", async Task<Results<Ok<SignRequest>, NotFound>> (SignRequestService requests, int id) =>
+        group.MapGet("/signuprequests/{id}", async Task<Results<Ok<SignUpRequest>, NotFound>> (SignUpRequestService requests, int id) =>
         {
-            return (await requests.GetRequestById(id) is SignRequest request)
+            return (await requests.GetRequestById(id) is SignUpRequest request)
                 ? TypedResults.Ok(request)
                 : TypedResults.NotFound();
         }).WithName("GetSignRequestById");
 
-        group.MapGet("/students/{studentId}/signrequests", async Task<IEnumerable<SignRequest>> (SignRequestService requests, int studentId) =>
+        group.MapGet("/students/{studentId}/signuprequests", async Task<IEnumerable<SignUpRequest>> (SignUpRequestService requests, int studentId) =>
         {
             return await requests.GetRequestsByStudent(studentId);
         }).WithName("GetRequestsByStudent");
 
-        group.MapGet("/teams/{teamId}/signrequests", async Task<IEnumerable<SignRequest>> (SignRequestService requests, int teamId) =>
+        group.MapGet("/teams/{teamId}/signuprequests", async Task<IEnumerable<SignUpRequest>> (SignUpRequestService requests, int teamId) =>
         {
             return await requests.GetRequestsByTeam(teamId);
         }).WithName("GetRequestsByTeam");
 
-        group.MapPost("/signrequests", async Task<Created<SignRequest>> (SignRequestService requests, SignRequest request) =>
+        group.MapPost("/signuprequests", async Task<Created<SignUpRequest>> (SignUpRequestService requests, SignUpRequest request) =>
         {
             var created = await requests.SubmitSolution(request);
             return TypedResults.Created($"/signrequests/{created.Id}", created);
         }).WithName("SubmitSignRequest");
 
-        group.MapPut("/signrequests/{id}/state", async (SignRequestService requests, int id, string newState) =>
+        group.MapPut("/signuprequests/{id}/state", async (SignUpRequestService requests, int id, StudentSignUpState newState) =>
         {
             await requests.UpdateRequestState(id, newState);
             return TypedResults.NoContent();
         }).WithName("UpdateSignRequestState");
 
-        group.MapDelete("/signrequests/{id}", async (SignRequestService requests, int id) =>
+        group.MapDelete("/signuprequests/{id}", async (SignUpRequestService requests, int id) =>
         {
             await requests.DeleteRequest(id);
             return TypedResults.NoContent();

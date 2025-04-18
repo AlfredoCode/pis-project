@@ -1,26 +1,25 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PRegSys.DAL.Entities;
 
-namespace PRegSys.DAL.Repositories
+namespace PRegSys.DAL.Repositories;
+
+public class EvaluationRepository(PregsysDbContext db)
 {
-    public class EvaluationRepository(PregsysDbContext db)
+    public async Task<Evaluation?> GetEvaluationBySolutionId(int solutionId)
+        => await db.Solutions.Where(s => s.Id == solutionId).Select(s => s.Evaluation).FirstOrDefaultAsync();
+
+    public async Task<Evaluation?> GetEvaluationById(int id)
+        => await db.Evaluations.FindAsync(id);
+
+    public async Task<Evaluation> CreateEvaluation(Evaluation evaluation)
     {
-        public async Task<Evaluation?> GetEvaluationBySolutionId(int solutionId)
-            => await db.Solutions.Where(s => s.Id == solutionId).Select(s => s.Evaluation).FirstOrDefaultAsync();
+        db.Evaluations.Add(evaluation);
+        await db.SaveChangesAsync();
+        return evaluation;
+    }
 
-        public async Task<Evaluation?> GetEvaluationById(int id)
-            => await db.Evaluations.FindAsync(id);
-
-        public async Task<Evaluation> CreateEvaluation(Evaluation evaluation)
-        {
-            db.Evaluations.Add(evaluation);
-            await db.SaveChangesAsync();
-            return evaluation;
-        }
-
-        public async Task DeleteEvaluation(int id)
-        {
-            await db.Evaluations.Where(e => e.Id == id).ExecuteDeleteAsync();
-        }
+    public async Task DeleteEvaluation(int id)
+    {
+        await db.Evaluations.Where(e => e.Id == id).ExecuteDeleteAsync();
     }
 }
