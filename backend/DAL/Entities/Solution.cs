@@ -14,7 +14,7 @@ public class Solution : IEntity
     public required Project Project { get; set; }
 
     public required int TeamId { get; set; }
-    public required Team Team { get; set; } = null!;
+    public required Team Team { get; set; }
 
     public int EvaluationId { get; set; }
     public required Evaluation Evaluation { get; set; }
