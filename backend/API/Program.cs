@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http.Json;
+using Microsoft.OpenApi;
 
 using Scalar.AspNetCore;
 using NodaTime;
@@ -30,6 +31,7 @@ builder.Services.Configure<JsonOptions>(o => {
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi(o => {
+    o.OpenApiVersion = OpenApiSpecVersion.OpenApi3_1;
     o.AddSchemaTransformer<OpenApiSchemaTransformer>();
 });
 
