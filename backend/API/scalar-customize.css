@@ -2,6 +2,15 @@
  *  Customize Scalar UI (for API documentation/playground)
  */
 
+.dark-mode {
+    --scalar-color-green: #41d777;
+    --scalar-color-red: #ff3c3a;
+    --scalar-color-yellow: #eec644;
+    --scalar-color-blue: #5eb2fb;
+    --scalar-color-orange: #f79a56;
+    --scalar-color-purple: #cb57ff;
+}
+
 .section-header .label {
     font-family: var(--scalar-font-code);
 
