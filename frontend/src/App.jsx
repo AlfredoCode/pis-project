@@ -1,20 +1,20 @@
-import MainContent from "./components/MainContent";
-import Navigation from "./components/Navigation";
-import { useState } from "react";
+import React, { useState } from 'react';
+import LoginPage from './components/LogInPage';
+import SignInPage from './components/SignInPage';
+import HomePage from './components/HomePage';
 
 function App() {
-  const [isMenuHovered, setIsMenuHovered] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [showSignIn, setShowSignIn] = useState(false);
 
-  return (
-    <>
-      <Navigation
-        isMenuHovered={isMenuHovered}
-        setIsMenuHovered={setIsMenuHovered}
-      />
+  if (isAuthenticated) {
+    return <HomePage />;
+  }
 
-      {isMenuHovered && <div className="focus-booster"></div>}
-      <MainContent />
-    </>
+  return showSignIn ? (
+    <SignInPage onSwitch={() => setShowSignIn(false)} onSuccess={() => setIsAuthenticated(true)} />
+  ) : (
+    <LoginPage onSwitch={() => setShowSignIn(true)} onSuccess={() => setIsAuthenticated(true)} />
   );
 }
 
