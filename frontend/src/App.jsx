@@ -1,21 +1,18 @@
-import React, { useState } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import LoginPage from './components/LogInPage';
 import SignInPage from './components/SignInPage';
 import HomePage from './components/HomePage';
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [showSignIn, setShowSignIn] = useState(false);
-
-  if (isAuthenticated) {
-    return <HomePage />;
-  }
-
-  return showSignIn ? (
-    <SignInPage onSwitch={() => setShowSignIn(false)} onSuccess={() => setIsAuthenticated(true)} />
-  ) : (
-    <LoginPage onSwitch={() => setShowSignIn(true)} onSuccess={() => setIsAuthenticated(true)} />
-  );
+	return (
+		<Router>
+		<Routes>
+			<Route path='/' element={<LoginPage />} />
+			<Route path='/signup' element={<SignInPage />} />
+			<Route path='/home' element={<HomePage />} />
+		</Routes>
+		</Router>
+	);
 }
 
 export default App;
