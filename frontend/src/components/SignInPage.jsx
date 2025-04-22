@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import "../styles/LogIn.css";
+import "../styles/login.css";
 import "../styles/common.css";
 
 function SignInPage({ onSuccess }) {
