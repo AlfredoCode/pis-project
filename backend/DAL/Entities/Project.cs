@@ -17,6 +17,8 @@ public class Project : IEntity
 
     public required int OwnerId { get; set; }
     public required Teacher Owner { get; set; }
+
+    public required ICollection<Team> Teams { get; set; } = new List<Team>();
 }
 
 file class Configuration : IEntityTypeConfiguration<Project>

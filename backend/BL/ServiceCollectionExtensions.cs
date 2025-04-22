@@ -10,5 +10,9 @@ public static class ServiceCollectionExtensions
     {
         services.AddScoped<ProjectService>();
         services.AddScoped<UserService>();
+        services.AddScoped<TeamService>();
+        services.AddScoped<EvaluationService>();
+        services.AddScoped<SolutionService>();
+        services.AddScoped<SignUpRequestService>();
     }
 }

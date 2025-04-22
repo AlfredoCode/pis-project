@@ -22,5 +22,9 @@ public static class ServiceCollectionExtensions
         });
         services.AddScoped<ProjectRepository>();
         services.AddScoped<UserRepository>();
+        services.AddScoped<TeamRepository>();
+        services.AddScoped<SolutionRepository>();
+        services.AddScoped<EvaluationRepository>();
+        services.AddScoped<SignUpRequestRepository>();
     }
 }

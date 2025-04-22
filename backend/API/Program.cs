@@ -50,15 +50,7 @@ app.UseHttpsRedirection();
 
 app.MapGet("/", () => "Hello World");
 
-var api = app.MapGroup("/api");
-
-api.MapGroup("")
-    .MapProjectEndpoints()
-    .WithTags("Projects");
-
-api.MapGroup("")
-    .MapUserEndpoints()
-    .WithTags("Users");
+app.RegisterEndpointDefinitions();
 
 app.Run();
 
