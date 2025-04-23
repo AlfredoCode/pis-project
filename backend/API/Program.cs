@@ -50,7 +50,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.MapGet("/", () => "Hello World");
+app.MapGet("/", () => "Hello World").WithTags("all endpoints");
 
 app.RegisterEndpointDefinitions();
 
