@@ -15,7 +15,7 @@ public class SignUpRequestEndpoints : IEndpointDefinition
                 return (await requests.GetRequestById(id) is SignUpRequest request)
                     ? TypedResults.Ok(request)
                     : TypedResults.NotFound();
-            }).WithName("GetSignRequestById");
+            }).WithName("GetSignUpRequestById");
 
         group
             .MapGet("/students/{studentId}/signuprequests",
@@ -36,20 +36,20 @@ public class SignUpRequestEndpoints : IEndpointDefinition
             async Task<Created<SignUpRequest>> (SignUpRequestService requests, SignUpRequest request) =>
             {
                 var created = await requests.CreateRequest(request);
-                return TypedResults.Created($"/signrequests/{created.Id}", created);
-            }).WithName("SubmitSignRequest");
+                return TypedResults.Created($"/signuprequests/{created.Id}", created);
+            }).WithName("SubmitSignUpRequest");
 
         group.MapPut("/signuprequests/{id}/state",
             async (SignUpRequestService requests, int id, StudentSignUpState newState) =>
             {
                 await requests.UpdateRequestState(id, newState);
                 return TypedResults.NoContent();
-            }).WithName("UpdateSignRequestState");
+            }).WithName("UpdateSignUpRequestState");
 
         group.MapDelete("/signuprequests/{id}", async (SignUpRequestService requests, int id) =>
         {
             await requests.DeleteRequest(id);
             return TypedResults.NoContent();
-        }).WithName("DeleteSignRequest");
+        }).WithName("DeleteSignUpRequest");
     }
 }

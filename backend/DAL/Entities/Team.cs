@@ -1,25 +1,23 @@
 ﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore;
-using System.Text.Json.Serialization;
 
 namespace PRegSys.DAL.Entities;
+
 public class Team : IEntity
 {
     public required int Id { get; set; }
+    public required string Name { get; set; }
     public required string Description { get; set; } = string.Empty;
-    public required int Size { get; set; }
 
     public required int LeaderId { get; set; }
     public required Student Leader { get; set; }
 
     public required int ProjectId { get; set; }
-    [JsonIgnore]
-    public Project Project { get; set; } = null!;
+    public required Project Project { get; set; }
 
     public ICollection<Student> Students { get; set; } = new List<Student>();
-    public ICollection<SignUpRequest> SignRequests { get; set; } = new List<SignUpRequest>();
+    public ICollection<SignUpRequest> SignUpRequests { get; set; } = new List<SignUpRequest>();
 }
-
 
 file class Configuration : IEntityTypeConfiguration<Team>
 {

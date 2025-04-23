@@ -30,7 +30,7 @@ file class Configuration : IEntityTypeConfiguration<SignUpRequest>
             .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasOne(r => r.Team)
-            .WithMany(t => t.SignRequests)
+            .WithMany(t => t.SignUpRequests)
             .HasForeignKey(r => r.TeamId)
             .OnDelete(DeleteBehavior.Cascade);
     }
