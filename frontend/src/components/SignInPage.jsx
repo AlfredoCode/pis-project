@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import Alert from './Alert';
 import "../styles/login.css";
 import "../styles/common.css";
 
-function SignInPage({ onSuccess }) {
+function SignInPage() {
     const [formData, setFormData] = useState({
         login: '',
         firstName: '',
@@ -12,27 +13,28 @@ function SignInPage({ onSuccess }) {
         confirmPassword: '',
         role: 'student'
     });
-
+    const [alert, setAlert] = useState(null);
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
     };
-
     const navigate = useNavigate();
-
     const handleSubmit = (e) => {
         e.preventDefault();
         if (formData.password !== formData.confirmPassword) {
-            alert('Passwords do not match');
+            setAlert({ type: 'error', message: 'Passwords do not match!' });
             return;
         }
         // DUMMY: Accept any registration
-        navigate('/home');
+        navigate('/home', {state: {
+            alert: {type: 'success', message: 'Logged in successfully!'}
+        }});
     };
 
     return (
     <div className="auth-container">
         <h2>Sign up</h2>
+        {alert && (<Alert type={alert.type} message={alert.message} duration={3500} onClose={() => setAlert(null)} />)}
         <form onSubmit={handleSubmit}>
             <input className="input-empty" type="text" name="login" placeholder="Login" value={formData.login} onChange={handleChange} required />
             <input className="input-empty" type="text" name="firstName" placeholder="First Name" value={formData.firstName} onChange={handleChange} required />

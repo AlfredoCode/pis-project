@@ -1,25 +1,30 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import Alert from './Alert';
 import "../styles/login.css";
 import "../styles/common.css";
 
-function LoginPage({ onSuccess }) {
+function LoginPage() {
 	const [login, setLogin] = useState('');
 	const [password, setPassword] = useState('');
+	const [alert, setAlert] = useState(null);
 	const navigate = useNavigate();
 
 	const handleSubmit = (e) => {
 		e.preventDefault();
 		// DUMMY: Hardcoded authentication check
 		if (login === 'user' && password === 'password') {
-			navigate('/home');
+			navigate('/home', {state: {
+				alert: {type: 'success', message: 'Logged in successfully!'}
+			}});
 		} else {
-			alert('Invalid login credentials');
+			setAlert({ type: 'error', message: 'Invalid login credentials!' });
 		}
 	};
 
   return (
     <div className="auth-container">
+		{alert && (<Alert type={alert.type} message={alert.message} duration={3500} onClose={() => setAlert(null)} />)}
         <h2>Log in</h2>
             <form onSubmit={handleSubmit}>
             <input className="input-empty" type="text" placeholder="Login" value={login} onChange={e => setLogin(e.target.value)} required />

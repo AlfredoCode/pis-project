@@ -1,0 +1,32 @@
+
+
+.alert{
+    position:  absolute;
+    top: 40px;
+    right: 60px;
+    min-width: 18%;
+    height: fit-content;
+    max-width: 90%;
+    padding: 1em 1.6em;
+    color: var(--color-text1);
+    font-weight: normal;
+    font-size: 16px;
+    text-align: left;
+    border-radius: 12px;
+}
+
+.alert-info{
+    background-color: var(--color-info);
+}
+
+.alert-success{
+    background-color: var(--color-success);
+}
+
+.alert-warning{
+    background-color: var(--color-warning);
+}
+
+.alert-error{
+    background-color: var(--color-error);
+}
