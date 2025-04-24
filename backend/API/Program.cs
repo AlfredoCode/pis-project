@@ -24,6 +24,7 @@ builder.Services.AddBLServices();
 builder.Services.AddDALServices(connectionString);
 
 builder.Services.Configure<JsonOptions>(o => {
+    o.SerializerOptions.WriteIndented = builder.Environment.IsDevelopment();
     o.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
     o.SerializerOptions.ConfigureForNodaTime(
         new NodaJsonSettings(DateTimeZoneProviders.Tzdb));

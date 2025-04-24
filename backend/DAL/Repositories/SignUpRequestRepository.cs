@@ -6,20 +6,29 @@ namespace PRegSys.DAL.Repositories;
 
 public class SignUpRequestRepository(PregsysDbContext db)
 {
+    IQueryable<SignUpRequest> SignUpRequestsQuery => db.SignUpRequests
+        .Include(r => r.Student)
+        .Include(r => r.Team).ThenInclude(t => t.Project).ThenInclude(p => p.Owner);
+
     public async Task<IEnumerable<SignUpRequest>> GetRequestsByTeam(int teamId)
-        => await db.SignUpRequests.Where(r => r.TeamId == teamId).ToListAsync();
+        => await SignUpRequestsQuery
+            .Where(r => r.TeamId == teamId)
+            .ToListAsync();
 
     public async Task<IEnumerable<SignUpRequest>> GetRequestsByStudent(int studentId)
-        => await db.SignUpRequests.Where(r => r.StudentId == studentId).ToListAsync();
+        => await SignUpRequestsQuery
+            .Where(r => r.StudentId == studentId)
+            .ToListAsync();
 
     public async Task<SignUpRequest?> GetRequestById(int id)
-        => await db.SignUpRequests.FindAsync(id);
+        => await SignUpRequestsQuery
+            .FirstOrDefaultAsync(r => r.Id == id);
 
     public async Task<SignUpRequest> CreateRequest(SignUpRequest upRequest)
     {
         db.SignUpRequests.Add(upRequest);
         await db.SaveChangesAsync();
-        return upRequest;
+        return (await GetRequestById(upRequest.Id))!;
     }
 
     public async Task UpdateRequestState(int requestId, StudentSignUpState newState)
