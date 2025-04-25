@@ -10,10 +10,10 @@ function Navigation({ user }) {
 			</div>
 		  	<div className="nav-middle">
 				<Link className="nav-item nav-item-selected" to="/home">Home</Link>
-				{user.role === 'student' && (
+				{user.role === 'Student' && (
 					<Link className="nav-item" to="/projects">Projects</Link>
 				)}
-				{user.role === 'teacher' && (
+				{user.role === 'Teacher' && (
 					<Link className="nav-item" to="/projects/new">Create New Project</Link>
 				)}
 			</div>
