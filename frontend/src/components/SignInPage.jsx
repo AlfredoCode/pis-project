@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import Alert from './Alert';
-import "../styles/login.css";
-import "../styles/common.css";
+import '../styles/login.css';
+import '../styles/common.css';
 
 function SignInPage() {
     const [formData, setFormData] = useState({

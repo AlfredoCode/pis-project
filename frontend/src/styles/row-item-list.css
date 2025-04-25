@@ -1,0 +1,22 @@
+
+.row-item-list{
+    font-size: 16px;
+}
+
+.row-list{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: start;
+    align-items: center;
+    gap: 0.8em;
+}
+
+.row-item{
+    background-color: rgb(from var(--color-primary) r g b / 0.5);
+    padding: 6px;
+    border: 2px solid var(--color-primary);
+    font-size: 16px;
+    text-decoration: none;
+    color: var(--color-text1);
+}

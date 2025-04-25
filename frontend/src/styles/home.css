@@ -1,0 +1,10 @@
+
+
+.home-container h2{
+    margin: 30px 30px 10px 30px;
+    border-bottom: 2px solid var(--color-text1);
+}
+
+.home-container .dashboard{
+    margin: 30px 30px 10px 30px;
+}
