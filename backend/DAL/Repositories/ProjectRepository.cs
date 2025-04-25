@@ -6,26 +6,34 @@ namespace PRegSys.DAL.Repositories;
 
 public class ProjectRepository(PregsysDbContext db)
 {
-    public async Task<IEnumerable<Project>> GetAllProjects() => await db.Projects.ToListAsync();
-    public async Task<Project?> GetProjectById(int id) => await db.Projects.FindAsync(id);
+    IQueryable<Project> ProjectsQuery => db.Projects
+        .Include(p => p.Owner);
+
+    public async Task<IEnumerable<Project>> GetAllProjects()
+        => await ProjectsQuery.ToListAsync();
+
+    public async Task<Project?> GetProjectById(int id)
+        => await ProjectsQuery.FirstOrDefaultAsync(p => p.Id == id);
 
     public async Task<IEnumerable<Project>> GetProjectsInCourse(string course)
     {
-        return await db.Projects.Where(p => p.Course == course).ToListAsync();
+        return await ProjectsQuery
+            .Where(p => p.Course == course)
+            .ToListAsync();
     }
 
     public async Task<Project> CreateProject(Project project)
     {
         db.Projects.Add(project);
         await db.SaveChangesAsync();
-        return project;
+        return (await GetProjectById(project.Id))!;
     }
 
     public async Task<Project> UpdateProject(Project project)
     {
         db.Projects.Update(project);
         await db.SaveChangesAsync();
-        return project;
+        return (await GetProjectById(project.Id))!;
     }
 
     public async Task DeleteProject(int id)

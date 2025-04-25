@@ -20,7 +20,7 @@ Accept: application/json
 
 ###
 
-GET {{API_HostAddress}}/users/xfooba01
+GET {{API_HostAddress}}/users/tmarek
 Accept: application/json
 
 ###
@@ -35,8 +35,12 @@ Accept: application/json
 
 ###
 
-GET {{API_HostAddress}}/projects?course=ICP
+GET {{API_HostAddress}}/projects?course=IZP
 Accept: application/json
+
+###
+
+DELETE {{API_HostAddress}}/projects/3
 
 ###
 
@@ -52,3 +56,46 @@ Content-Type: application/json
     "capacity": 40,
     "ownerId": 1
 }
+
+###
+
+GET {{API_HostAddress}}/teams
+Accept: application/json
+
+###
+
+GET {{API_HostAddress}}/teams/1
+Accept: application/json
+
+###
+
+GET {{API_HostAddress}}/projects/1/teams
+Accept: application/json
+
+###
+
+GET {{API_HostAddress}}/students/5/teams
+Accept: application/json
+
+###
+
+GET {{API_HostAddress}}/teams/2/students
+Accept: application/json
+
+###
+
+POST {{API_HostAddress}}/teams
+Content-Type: application/json
+
+{
+  "name": "The Debugurus",
+  "description": "We are the masters of debugging!",
+  "leaderId": 6,
+  "projectId": 1
+}
+
+###
+
+DELETE {{API_HostAddress}}/teams/5
+
+###

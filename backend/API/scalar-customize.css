@@ -2,6 +2,28 @@
  *  Customize Scalar UI (for API documentation/playground)
  */
 
+/* fix low contrast of dark-mode colors */
+.dark-mode {
+    --scalar-color-green: #41d777;
+    --scalar-color-red: #ff3c3a;
+    --scalar-color-yellow: #eec644;
+    --scalar-color-blue: #5eb2fb;
+    --scalar-color-orange: #f79a56;
+    --scalar-color-purple: #cb57ff;
+}
+
+/* display endpoint HTTP method before the endpoint title (URL) */
+.scalar-modal-search div:has(> .sidebar-heading-type) {
+    order: -1;
+}
+
+/* prevent unnecessary wrapping of section titles */
+@media (min-width: 1200px) {
+    .section-header-wrapper:has(> :only-child) {
+        grid-template-columns: 1fr;
+    }
+}
+
 .section-header .label {
     font-family: var(--scalar-font-code);
 

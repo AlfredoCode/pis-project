@@ -6,25 +6,34 @@ namespace PRegSys.DAL.Repositories;
 
 public class SignUpRequestRepository(PregsysDbContext db)
 {
+    IQueryable<SignUpRequest> SignUpRequestsQuery => db.SignUpRequests
+        .Include(r => r.Student)
+        .Include(r => r.Team).ThenInclude(t => t.Project).ThenInclude(p => p.Owner);
+
     public async Task<IEnumerable<SignUpRequest>> GetRequestsByTeam(int teamId)
-        => await db.SignRequests.Where(r => r.TeamId == teamId).ToListAsync();
+        => await SignUpRequestsQuery
+            .Where(r => r.TeamId == teamId)
+            .ToListAsync();
 
     public async Task<IEnumerable<SignUpRequest>> GetRequestsByStudent(int studentId)
-        => await db.SignRequests.Where(r => r.StudentId == studentId).ToListAsync();
+        => await SignUpRequestsQuery
+            .Where(r => r.StudentId == studentId)
+            .ToListAsync();
 
     public async Task<SignUpRequest?> GetRequestById(int id)
-        => await db.SignRequests.FindAsync(id);
+        => await SignUpRequestsQuery
+            .FirstOrDefaultAsync(r => r.Id == id);
 
     public async Task<SignUpRequest> CreateRequest(SignUpRequest upRequest)
     {
-        db.SignRequests.Add(upRequest);
+        db.SignUpRequests.Add(upRequest);
         await db.SaveChangesAsync();
-        return upRequest;
+        return (await GetRequestById(upRequest.Id))!;
     }
 
     public async Task UpdateRequestState(int requestId, StudentSignUpState newState)
     {
-        var request = await db.SignRequests.FindAsync(requestId);
+        var request = await db.SignUpRequests.FindAsync(requestId);
         if (request == null) return;
         request.State = newState;
         await db.SaveChangesAsync();
@@ -32,6 +41,6 @@ public class SignUpRequestRepository(PregsysDbContext db)
 
     public async Task DeleteRequest(int id)
     {
-        await db.SignRequests.Where(r => r.Id == id).ExecuteDeleteAsync();
+        await db.SignUpRequests.Where(r => r.Id == id).ExecuteDeleteAsync();
     }
 }

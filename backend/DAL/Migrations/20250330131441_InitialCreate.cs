@@ -76,6 +76,9 @@ namespace PRegSys.DAL.Migrations
 
             migrationBuilder.DropTable(
                 name: "users");
+
+            migrationBuilder.AlterDatabase()
+                .OldAnnotation("Npgsql:CollationDefinition:case_insensitive", "und-u-ks-level2,und-u-ks-level2,icu,False");
         }
     }
 }

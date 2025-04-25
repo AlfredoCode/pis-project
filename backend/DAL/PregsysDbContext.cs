@@ -11,7 +11,7 @@ public class PregsysDbContext(DbContextOptions<PregsysDbContext> options) : DbCo
     public DbSet<Student> Students => Set<Student>();
     public DbSet<Project> Projects => Set<Project>();
     public DbSet<Team> Teams => Set<Team>();
-    public DbSet<SignUpRequest> SignRequests => Set<SignUpRequest>();
+    public DbSet<SignUpRequest> SignUpRequests => Set<SignUpRequest>();
     public DbSet<Evaluation> Evaluations => Set<Evaluation>();
     public DbSet<Solution> Solutions => Set<Solution>();
 

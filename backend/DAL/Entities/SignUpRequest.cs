@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore;
-using System.Text.Json.Serialization;
 using NodaTime;
 using PRegSys.DAL.Enums;
 
@@ -16,8 +15,7 @@ public class SignUpRequest : IEntity
     public required Student Student { get; set; }
 
     public required int TeamId { get; set; }
-    [JsonIgnore]
-    public Team Team { get; set; } = null!;
+    public required Team Team { get; set; }
 }
 
 file class Configuration : IEntityTypeConfiguration<SignUpRequest>
@@ -30,7 +28,7 @@ file class Configuration : IEntityTypeConfiguration<SignUpRequest>
             .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasOne(r => r.Team)
-            .WithMany(t => t.SignRequests)
+            .WithMany(t => t.SignUpRequests)
             .HasForeignKey(r => r.TeamId)
             .OnDelete(DeleteBehavior.Cascade);
     }
