@@ -22,5 +22,12 @@ public class PregsysDbContext(DbContextOptions<PregsysDbContext> options) : DbCo
 
         // automatically apply configurations from all IEntityTypeConfiguration<T> implementations
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(PregsysDbContext).Assembly);
+
+        Seeds.UserSeed.Seed(modelBuilder);
+        Seeds.ProjectSeed.Seed(modelBuilder);
+        Seeds.TeamSeed.Seed(modelBuilder);
+        Seeds.EvaluationSeed.Seed(modelBuilder);
+        Seeds.SignUpRequestSeed.Seed(modelBuilder);
+        Seeds.SolutionSeed.Seed(modelBuilder);
     }
 }
