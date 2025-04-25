@@ -20,7 +20,7 @@ Accept: application/json
 
 ###
 
-GET {{API_HostAddress}}/users/xfooba01
+GET {{API_HostAddress}}/users/tmarek
 Accept: application/json
 
 ###
@@ -35,7 +35,7 @@ Accept: application/json
 
 ###
 
-GET {{API_HostAddress}}/projects?course=ICP
+GET {{API_HostAddress}}/projects?course=IZP
 Accept: application/json
 
 ###
@@ -74,12 +74,12 @@ Accept: application/json
 
 ###
 
-GET {{API_HostAddress}}/students/101/teams
+GET {{API_HostAddress}}/students/5/teams
 Accept: application/json
 
 ###
 
-GET {{API_HostAddress}}/teams/6/students
+GET {{API_HostAddress}}/teams/2/students
 Accept: application/json
 
 ###
@@ -90,7 +90,7 @@ Content-Type: application/json
 {
   "name": "The Debugurus",
   "description": "We are the masters of debugging!",
-  "leaderId": 101,
+  "leaderId": 6,
   "projectId": 1
 }
 
