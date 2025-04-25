@@ -13,7 +13,7 @@ public static class ProjectSeed
             {
                 Id = 1,
                 Name = "IZP Projekt 1",
-                Course = "IZP - Zaklady Programovani",
+                Course = "IZP",
                 Description = "Prime number applications using bit fields.",
                 MaxTeamSize = 3,
                 Capacity = 5,

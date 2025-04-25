@@ -21,7 +21,7 @@ public static class TeamSeed
                 Id = 2,
                 Name = "Team Beta",
                 Description = "",
-                LeaderId = 4,
+                LeaderId = 5,
                 ProjectId = 1
             }
         );
@@ -29,9 +29,9 @@ public static class TeamSeed
         modelBuilder.Entity("StudentTeam").HasData(
             new { StudentsId = 2, TeamId = 1 },
             new { StudentsId = 3, TeamId = 1 },
-            new { StudentsId = 4, TeamId = 2 },
             new { StudentsId = 5, TeamId = 2 },
-            new { StudentsId = 6, TeamId = 2 }
+            new { StudentsId = 6, TeamId = 2 },
+            new { StudentsId = 7, TeamId = 2 }
         );
     }
 }
