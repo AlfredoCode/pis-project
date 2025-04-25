@@ -17,7 +17,7 @@ public static class ProjectSeed
                 Description = "Prime number applications using bit fields.",
                 MaxTeamSize = 3,
                 Capacity = 5,
-                Deadline = Instant.FromDateTimeUtc(new DateTime(2023, 12, 31, 23, 59, 59, DateTimeKind.Utc)),
+                Deadline = Instant.FromUtc(2023, 12, 31, 23, 59, 59),
                 OwnerId = 1
             }
         );

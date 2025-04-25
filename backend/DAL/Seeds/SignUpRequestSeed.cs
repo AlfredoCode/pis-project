@@ -13,7 +13,7 @@ public static class SignUpRequestSeed
             new
             {
                 Id = 1,
-                CreationDate = Instant.FromDateTimeUtc(new DateTime(2023, 9, 1, 8, 0, 0, DateTimeKind.Utc)),
+                CreationDate = Instant.FromUtc(2023, 9, 1, 8, 0, 0),
                 State = StudentSignUpState.Created,
                 StudentId = 3,
                 TeamId = 1
