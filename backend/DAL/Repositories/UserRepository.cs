@@ -1,5 +1,4 @@
-﻿
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 
 using PRegSys.DAL.Entities;
 
@@ -19,14 +18,14 @@ public class UserRepository(PregsysDbContext db)
     {
         db.Users.Add(user);
         await db.SaveChangesAsync();
-        return user;
+        return (await GetUserById(user.Id))!;
     }
 
     public async Task<User> UpdateUser(User user)
     {
         db.Users.Update(user);
         await db.SaveChangesAsync();
-        return user;
+        return (await GetUserById(user.Id))!;
     }
 
     public async Task DeleteUser(int id)

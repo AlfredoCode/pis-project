@@ -40,6 +40,10 @@ Accept: application/json
 
 ###
 
+DELETE {{API_HostAddress}}/projects/3
+
+###
+
 POST {{API_HostAddress}}/projects
 Content-Type: application/json
 
@@ -52,3 +56,46 @@ Content-Type: application/json
     "capacity": 40,
     "ownerId": 1
 }
+
+###
+
+GET {{API_HostAddress}}/teams
+Accept: application/json
+
+###
+
+GET {{API_HostAddress}}/teams/1
+Accept: application/json
+
+###
+
+GET {{API_HostAddress}}/projects/1/teams
+Accept: application/json
+
+###
+
+GET {{API_HostAddress}}/students/101/teams
+Accept: application/json
+
+###
+
+GET {{API_HostAddress}}/teams/6/students
+Accept: application/json
+
+###
+
+POST {{API_HostAddress}}/teams
+Content-Type: application/json
+
+{
+  "name": "The Debugurus",
+  "description": "We are the masters of debugging!",
+  "leaderId": 101,
+  "projectId": 1
+}
+
+###
+
+DELETE {{API_HostAddress}}/teams/5
+
+###

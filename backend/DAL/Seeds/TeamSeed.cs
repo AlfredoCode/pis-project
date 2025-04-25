@@ -11,16 +11,16 @@ public static class TeamSeed
             new
             {
                 Id = 1,
-                Description = "Team Alpha",
-                Size = 3,
+                Name = "Team Alpha",
+                Description = "We do awesome stuff.",
                 LeaderId = 2,
                 ProjectId = 1
             },
             new
             {
                 Id = 2,
-                Description = "Team Beta",
-                Size = 3,
+                Name = "Team Beta",
+                Description = "",
                 LeaderId = 4,
                 ProjectId = 1
             }

@@ -6,7 +6,7 @@ public static class EndpointDefinitionExtensions
 {
     public static void RegisterEndpointDefinitions(this WebApplication app)
     {
-        var group = app.MapGroup("/api");
+        var api = app.MapGroup("/api");
 
         var definitions = Assembly.GetExecutingAssembly()
             .DefinedTypes
@@ -16,7 +16,12 @@ public static class EndpointDefinitionExtensions
 
         foreach (var definition in definitions)
         {
+            string tag = removeSuffix(definition.GetType().Name, "Endpoints");
+            var group = api.MapGroup("").WithTags("all endpoints", tag);
             definition.RegisterEndpoints(group);
         }
+
+        static string removeSuffix(string str, string suffix)
+            => str.EndsWith(suffix) ? str[..^suffix.Length] : str;
     }
 }

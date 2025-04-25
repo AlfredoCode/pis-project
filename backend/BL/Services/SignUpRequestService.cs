@@ -4,7 +4,9 @@ using PRegSys.DAL.Repositories;
 
 namespace PRegSys.BL.Services;
 
-public class SignUpRequestService(SignUpRequestRepository signUpRequests)
+public class SignUpRequestService(
+    SignUpRequestRepository signUpRequests,
+    TeamRepository teams)
 {
     public async Task<SignUpRequest?> GetRequestById(int id)
     {
@@ -29,6 +31,13 @@ public class SignUpRequestService(SignUpRequestRepository signUpRequests)
     public async Task UpdateRequestState(int requestId, StudentSignUpState newState)
     {
         await signUpRequests.UpdateRequestState(requestId, newState);
+
+        // add the student to the team if the request is accepted
+        if (newState == StudentSignUpState.Approved
+            && await signUpRequests.GetRequestById(requestId) is SignUpRequest request)
+        {
+            await teams.AddMember(request.TeamId, request.StudentId);
+        }
     }
 
     public async Task DeleteRequest(int id)
