@@ -60,3 +60,35 @@
     border: 2px solid var(--color-secondary);
     border-radius: 12px;
 }
+
+
+.form-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    align-items: center;
+    height: 100vh;
+    width: 100%;
+    padding-top: 5vh;
+    color: var(--color-text1);
+    font-size: 16px;
+}
+
+.form-container form {
+    width: min-content;
+    display: flex;
+    flex-direction: column;
+}
+
+.form-container form input, textarea {
+    width: 40vw;
+    margin-bottom: 1em;
+}
+
+.form-container .short {
+    width: 15vw;
+}
+
+.form-container form textarea {
+    height: 15vh;
+}

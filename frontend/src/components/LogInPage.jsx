@@ -23,16 +23,18 @@ function LoginPage() {
 	};
 
   return (
-    <div className="auth-container">
+	<div className="main-content-wrapper">
 		{alert && (<Alert type={alert.type} message={alert.message} duration={3500} onClose={() => setAlert(null)} />)}
-        <h2>Log in</h2>
-            <form onSubmit={handleSubmit}>
-            <input className="input-empty" type="text" placeholder="Login" value={login} onChange={e => setLogin(e.target.value)} required />
-            <input className="input-empty" type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} required />
-            <button className="btn-filled-round" type="submit">Log In</button>
-        </form>
-        <p>Don't have an account? <Link className="btn-empty-sharp" to="/signup" >Sign up</Link></p>
-    </div>
+		<div className="auth-container">
+			<h2>Log in</h2>
+				<form onSubmit={handleSubmit}>
+				<input className="input-empty" type="text" placeholder="Login" value={login} onChange={e => setLogin(e.target.value)} required />
+				<input className="input-empty" type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} required />
+				<button className="btn-filled-round" type="submit">Log In</button>
+			</form>
+			<p>Don't have an account? <Link className="btn-empty-sharp" to="/signup" >Sign up</Link></p>
+		</div>
+	</div>
   );
 }
 

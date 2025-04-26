@@ -5,7 +5,7 @@ import '../styles/loading-screen.css';
 function LoadingScreen() {
     return (
         <div className="loading-overlay">
-		    <div className="loading-spinner">Loading projects...</div>
+		    <div className="loading-spinner">Loading...</div>
 	    </div>
     );
 }

@@ -1,0 +1,168 @@
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import api from '../api';
+import Alert from './Alert';
+import LoadingScreen from './LoadingScreen';
+import Navigation from './Navigation';
+import "../styles/common.css";
+
+
+// DUMMY user data
+const user = {
+	login: 'alice',
+	name: 'Alice',
+	surname: 'Wonder',
+	role: 'Teacher', // change to 'Teacher' to see other version
+	id: 1 // Needed to match with teams or owner
+};
+
+
+function ProjectFormPage({ mode }) {
+    const { id } = useParams(); // project id from URL if editing
+	const [alert, setAlert] = useState(null);
+    const [loading, setLoading] = useState(false);
+	const navigate = useNavigate();
+
+    const [name, setName] = useState('');
+    const [course, setCourse] = useState('');
+    const [description, setDescription] = useState('');
+    const [maxTeamSize, setMaxTeamSize] = useState('');
+    const [capacity, setCapacity] = useState('');
+    const [deadline, setDeadline] = useState('');
+
+    // passed project from ProjectPage, no need to fetch
+    const passedProject = location.state?.project;
+
+    // Fetch project data if needed
+    useEffect(() => {
+        async function fetchProject() {
+            setLoading(true);
+            try {
+                const res = await api.get(`/projects/${id}`);
+                setFormFields(res.data);
+            } catch (error) {
+                setAlert({ type: 'error', message: 'Failed to load project, cannot be edited.' });
+            } finally {
+                setLoading(false);
+            }
+        }
+    
+        function setFormFields(project) {
+            setName(project.name);
+            setCourse(project.course);
+            setDescription(project.description);
+            setMaxTeamSize(project.maxTeamSize);
+            setCapacity(project.capacity);
+            setDeadline(project.deadline.slice(0,16));
+        }
+
+        function resetFormFields() {
+            setName('');
+            setCourse('');
+            setDescription('');
+            setMaxTeamSize('');
+            setCapacity('');
+            setDeadline('');
+        }
+    
+        if (mode === 'edit' && id) {
+            if (passedProject) {
+                setFormFields(passedProject);
+            } else {
+                fetchProject();
+            }
+        } else if (mode == 'create') {
+            resetFormFields();
+        }
+    }, [mode, id, passedProject]);
+
+    // Handle submission POST/PUT
+    const handleSubmit = async (e) => {
+		e.preventDefault();
+
+        const projectData = {
+            name,
+            course,
+            description,
+            maxTeamSize: parseInt(maxTeamSize, 10),
+            capacity: parseInt(capacity, 10),
+            deadline: new Date(deadline).toISOString(),
+            ownerId: user.id,
+        };
+
+        // Checks for submitted data
+        if (new Date(deadline) <= new Date()) {
+            setAlert({ type: 'error', message: 'Deadline must be in the future.' });
+            setLoading(false);
+            return;
+        }
+        if (projectData.capacity <= 0) {
+            setAlert({ type: 'error', message: 'Capacity must be greater then zero.' })
+            setLoading(false);
+            return;
+        }
+        if (projectData.maxTeamSize <= 0) {
+            setAlert({ type: 'error', message: 'Capacity must be greater then zero.' })
+            setLoading(false);
+            return;
+        }
+
+        setLoading(true);
+
+        try {
+            let response;
+            if (mode === 'edit'){
+                // Send PUT
+                response = await api.put(`/projects/${id}`, payload);
+            } else {
+                // Send POST
+                response = await api.post('/projects', projectData);
+            }
+
+            if (response.status === 200){
+                setAlert({ type: 'success', message: 'Project edited successfully!' });
+            } else if (response.status === 201) {
+                setAlert({ type: 'success', message: 'Project created successfully!' });
+            }
+            setTimeout(() => navigate(`/project/${response.data.id}`), 1500);
+
+        } catch (error) {
+            if (error.response && error.response.data) {
+                setAlert({ type: 'error', message: error.response.data.message || 'Failed to create project.' });
+            } else {
+                setAlert({ type: 'error', message: 'Server is not responding.' });
+            }
+
+        } finally {
+            setLoading(false);
+        }
+	};
+
+    return (
+        <div className="main-content-wrapper">
+            {alert && (<Alert type={alert.type} message={alert.message} duration={3500} onClose={() => setAlert(null)} />)}
+            {loading && <LoadingScreen />}
+            <Navigation user={user} />
+            <div className="form-container">
+                <h2>{mode === 'edit' ? 'Edit Project' : 'Create new project'}</h2>
+                <form onSubmit={handleSubmit}>
+                <label htmlFor="name">Name of the project:</label>
+                <input className="input-empty" id="name" type="text" placeholder="Project name" value={name} onChange={e => setName(e.target.value)} required />
+                <label htmlFor="course">Course name:</label>
+                <input className="input-empty" id="course" type="text" placeholder="Course name" value={course} onChange={e => setCourse(e.target.value)} required />
+                <label htmlFor="description">Project description:</label>
+                <textarea className="input-empty" id="description" type="text" placeholder="Description of the project" value={description} onChange={e => setDescription(e.target.value)} required />
+                <label htmlFor="maxTeamSize">Maximal team size:</label>
+                <input className="input-empty short" id="maxTeamSize" type="number" placeholder="Team size" value={maxTeamSize} onChange={e => setMaxTeamSize(e.target.value)} required />
+                <label htmlFor="capacity">Maximal number of teams:</label>
+                <input className="input-empty short" id="capacity" type="number" placeholder="Capacity" value={capacity} onChange={e => setCapacity(e.target.value)} required />
+                <label htmlFor="deadline">The projects must be submitted by (deadline):</label>
+                <input className="input-empty" id="deadline" type="datetime-local" value={deadline} onChange={e => setDeadline(e.target.value)} required />
+                <button className="btn-filled-round" type="submit">{mode === 'edit' ? 'Save changes' : 'Create project'}</button>
+                </form>
+            </div>
+        </div>
+    );
+}
+
+export default ProjectFormPage;

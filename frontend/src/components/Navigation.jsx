@@ -14,7 +14,7 @@ function Navigation({ user }) {
 					<NavLink className={({ isActive }) => `nav-item ${isActive ? 'nav-item-selected' : ''}`} to="/projects">Projects</NavLink>
 				)}
 				{user.role === 'Teacher' && (
-					<NavLink className={({ isActive }) => `nav-item ${isActive ? 'nav-item-selected' : ''}`} to="/projects/new">Create New Project</NavLink>
+					<NavLink className={({ isActive }) => `nav-item ${isActive ? 'nav-item-selected' : ''}`} to="/project/new">Create New Project</NavLink>
 				)}
 			</div>
 		  	<div className="nav-right">

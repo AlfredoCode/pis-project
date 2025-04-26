@@ -4,6 +4,8 @@ import SignInPage from './components/SignInPage';
 import HomePage from './components/HomePage';
 import ProjectsPage from './components/ProjectsPage';
 
+import ProjectFormPage from './components/ProjectFormPage';
+
 function App() {
 	return (
 		<Router>
@@ -12,6 +14,9 @@ function App() {
 			<Route path='/signup' element={<SignInPage />} />
 			<Route path='/home' element={<HomePage />} />
 			<Route path='/projects' element={<ProjectsPage />} />
+
+			<Route path='/project/new' element={<ProjectFormPage mode='create' />} />
+			<Route path='/project/edit/:id' element={<ProjectFormPage mode='edit' />} />
 		</Routes>
 		</Router>
 	);

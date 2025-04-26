@@ -19,11 +19,11 @@ function ProjectCardStudent({ project }) {
 			<div className="card-line"><FontAwesomeIcon icon={faPlus}/><p>Evaluation: {project.points !== null ? project.points : 'None'}</p></div>
 			<div className="card-line">
 				{project.isTeamProject && (
-				<button className="btn-filled-round" onClick={() => navigate(`/projects/${project.id}/team`)}>
+				<button className="btn-filled-round" onClick={() => navigate(`/project/${project.id}/team`)}>
 					Team Page
 				</button>
 				)}
-				<button className="btn-filled-round" onClick={() => navigate(`/projects/${project.id}`)}>
+				<button className="btn-filled-round" onClick={() => navigate(`/project/${project.id}`)}>
 					Details
 				</button>
 			</div>
@@ -43,11 +43,11 @@ function ProjectCardTeacher({ project }) {
 			<div className="card-line"><FontAwesomeIcon icon={faPlus}/><p>Evaluations: {project.evaluations}/{project.submissions}</p></div>
 			<div className="card-line">
 				{project.isTeamProject && (
-				<button className="btn-filled-round" onClick={() => navigate(`/projects/${project.id}/team`)}>
+				<button className="btn-filled-round" onClick={() => navigate(`/project/${project.id}/team`)}>
 					Team Page
 				</button>
 				)}
-				<button className="btn-filled-round" onClick={() => navigate(`/projects/${project.id}`)}>
+				<button className="btn-filled-round" onClick={() => navigate(`/project/${project.id}`)}>
 					Details
 				</button>
 			</div>
@@ -67,7 +67,7 @@ function ProjectCard({ project }) {
 			<div className="card-line"><FontAwesomeIcon icon={faUserGroup}/><p>Registered: {project.registered}/{project.capacity}</p></div>
 			<div className="card-line"><FontAwesomeIcon icon={faUserPlus}/><p>{project.maxTeamSize > 1 ? `Team size: ${project.maxTeamSize}` : `Individual project`}</p></div>
 			<div className="card-line">
-				<button className="btn-filled-round" onClick={() => navigate(`/projects/${project.id}`)}>
+				<button className="btn-filled-round" onClick={() => navigate(`/project/${project.id}`)}>
 					Details
 				</button>
 			</div>
