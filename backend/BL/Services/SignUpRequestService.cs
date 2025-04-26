@@ -6,6 +6,7 @@ namespace PRegSys.BL.Services;
 
 public class SignUpRequestService(
     SignUpRequestRepository signUpRequests,
+    UserRepository users,
     TeamRepository teams)
 {
     public async Task<SignUpRequest?> GetRequestById(int id)
@@ -25,8 +26,13 @@ public class SignUpRequestService(
 
     public async Task<SignUpRequest> CreateRequest(SignUpRequest request)
     {
-        if ((request.Team ?? await teams.GetTeamById(request.TeamId)) is not Team team)
-            throw new InvalidOperationException("the specified team does not exist");
+        if ((await teams.GetTeamById(request.TeamId)) is not Team team)
+            throw new InvalidOperationException("The specified team does not exist");
+
+        if (team.Students.Any(s => s.Id == request.StudentId))
+        {
+            throw new InvalidOperationException("The student is already in this team");
+        }
 
         if (await teams.GetStudentTeamForProject(request.StudentId, team.ProjectId) is Team existingTeam)
         {
@@ -34,14 +40,14 @@ public class SignUpRequestService(
                 $"This student is already in a team ('{existingTeam.Name}') for this project");
         }
 
-        if (team.Students.Any(s => s.Id == request.StudentId))
-        {
-            throw new InvalidOperationException("The student is already in this team");
-        }
-
         if (team.SignUpRequests.Any(r => r.StudentId == request.StudentId))
         {
             throw new InvalidOperationException("The student has already requested to join this team");
+        }
+
+        if (await users.GetUserById(request.StudentId) is not Student student)
+        {
+            throw new InvalidOperationException("The given user does not exist or is not a student");
         }
 
         return await signUpRequests.CreateRequest(request);
