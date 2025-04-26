@@ -8,6 +8,7 @@ public class SignUpRequestRepository(PregsysDbContext db)
 {
     IQueryable<SignUpRequest> SignUpRequestsQuery => db.SignUpRequests
         .Include(r => r.Student)
+        .Include(r => r.Team).ThenInclude(t => t.Leader)
         .Include(r => r.Team).ThenInclude(t => t.Project).ThenInclude(p => p.Owner);
 
     public async Task<IEnumerable<SignUpRequest>> GetRequestsByTeam(int teamId)
@@ -26,7 +27,7 @@ public class SignUpRequestRepository(PregsysDbContext db)
 
     public async Task<SignUpRequest> CreateRequest(SignUpRequest upRequest)
     {
-        db.SignUpRequests.Add(upRequest);
+        await db.SignUpRequests.AddAsync(upRequest);
         await db.SaveChangesAsync();
         return (await GetRequestById(upRequest.Id))!;
     }

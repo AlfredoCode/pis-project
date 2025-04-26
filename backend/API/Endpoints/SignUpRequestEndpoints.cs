@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.EntityFrameworkCore;
 
 using NodaTime;
 
@@ -38,19 +39,37 @@ public class SignUpRequestEndpoints : IEndpointDefinition
             .WithName("GetRequestsByTeam");
 
         group.MapPost("/signuprequests",
-            async Task<Created<SignUpRequestReadDto>> (
+            async Task<Results<Created<SignUpRequestReadDto>, BadRequest<string>>> (
                 SignUpRequestService requests, SignUpRequestWriteDto request, IClock clock) =>
             {
-                var created = await requests.CreateRequest(request.ToEntity(clock));
-                return TypedResults.Created($"/signuprequests/{created.Id}", created.ToDto());
+                try
+                {
+                    var created = await requests.CreateRequest(request.ToEntity(clock));
+                    return TypedResults.Created($"/signuprequests/{created.Id}", created.ToDto());
+                }
+                catch (DbUpdateException ex)
+                {
+                    return TypedResults.BadRequest(ex.InnerException?.Message ?? ex.Message);
+                }
+                catch (InvalidOperationException ex)
+                {
+                    return TypedResults.BadRequest(ex.InnerException?.Message ?? ex.Message);
+                }
             })
             .WithName("SubmitSignUpRequest");
 
         group.MapPut("/signuprequests/{id}/state",
-            async (SignUpRequestService requests, int id, StudentSignUpState newState) =>
+            async Task<Results<NoContent, NotFound, BadRequest<string>>> (SignUpRequestService requests, int id, StudentSignUpState newState) =>
             {
-                await requests.UpdateRequestState(id, newState);
-                return TypedResults.NoContent();
+                try
+                {
+                    bool found = await requests.UpdateRequestState(id, newState);
+                    return found ? TypedResults.NoContent() : TypedResults.NotFound();
+                }
+                catch (InvalidOperationException ex)
+                {
+                    return TypedResults.BadRequest(ex.InnerException?.Message ?? ex.Message);
+                }
             })
             .WithName("UpdateSignUpRequestState");
 

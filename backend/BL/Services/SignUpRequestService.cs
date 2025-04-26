@@ -6,6 +6,7 @@ namespace PRegSys.BL.Services;
 
 public class SignUpRequestService(
     SignUpRequestRepository signUpRequests,
+    UserRepository users,
     TeamRepository teams)
 {
     public async Task<SignUpRequest?> GetRequestById(int id)
@@ -23,21 +24,59 @@ public class SignUpRequestService(
         return await signUpRequests.GetRequestsByTeam(teamId);
     }
 
-    public async Task<SignUpRequest> CreateRequest(SignUpRequest signUpRequest)
+    public async Task<SignUpRequest> CreateRequest(SignUpRequest request)
     {
-        return await signUpRequests.CreateRequest(signUpRequest);
+        if ((await teams.GetTeamById(request.TeamId)) is not Team team)
+            throw new InvalidOperationException("The specified team does not exist");
+
+        if (team.Students.Any(s => s.Id == request.StudentId))
+        {
+            throw new InvalidOperationException("The student is already in this team");
+        }
+
+        if (await teams.GetStudentTeamForProject(request.StudentId, team.ProjectId) is Team existingTeam)
+        {
+            throw new InvalidOperationException(
+                $"This student is already in a team ('{existingTeam.Name}') for this project");
+        }
+
+        if (team.SignUpRequests.Any(r => r.StudentId == request.StudentId))
+        {
+            throw new InvalidOperationException("The student has already requested to join this team");
+        }
+
+        if (await users.GetUserById(request.StudentId) is not Student student)
+        {
+            throw new InvalidOperationException("The given user does not exist or is not a student");
+        }
+
+        return await signUpRequests.CreateRequest(request);
     }
 
-    public async Task UpdateRequestState(int requestId, StudentSignUpState newState)
+    public async Task<bool> UpdateRequestState(int requestId, StudentSignUpState newState)
     {
+        if (await signUpRequests.GetRequestById(requestId) is not SignUpRequest request)
+            return false;
+
+        // TODO: check if the team leader is the one who is accepting/rejecting the request
+        // TODO: check if there is enough space in the team for the student
+
         await signUpRequests.UpdateRequestState(requestId, newState);
 
         // add the student to the team if the request is accepted
-        if (newState == StudentSignUpState.Approved
-            && await signUpRequests.GetRequestById(requestId) is SignUpRequest request)
+        if (newState == StudentSignUpState.Approved)
         {
-            await teams.AddMember(request.TeamId, request.StudentId);
+            // check if the student is already in some other team for the same project
+            if (await teams.GetStudentTeamForProject(request.StudentId, request.Team.ProjectId) is Team existingTeam)
+            {
+                throw new InvalidOperationException(
+                    $"This student is already in a team ('{existingTeam.Name}') for this project");
+            }
+
+            await teams.AddMember(request.Team, request.StudentId);
         }
+
+        return true;
     }
 
     public async Task DeleteRequest(int id)
