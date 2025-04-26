@@ -34,6 +34,16 @@ public class SignUpRequestService(
                 $"This student is already in a team ('{existingTeam.Name}') for this project");
         }
 
+        if (team.Students.Any(s => s.Id == request.StudentId))
+        {
+            throw new InvalidOperationException("The student is already in this team");
+        }
+
+        if (team.SignUpRequests.Any(r => r.StudentId == request.StudentId))
+        {
+            throw new InvalidOperationException("The student has already requested to join this team");
+        }
+
         return await signUpRequests.CreateRequest(request);
     }
 

@@ -27,7 +27,7 @@ public class SignUpRequestRepository(PregsysDbContext db)
 
     public async Task<SignUpRequest> CreateRequest(SignUpRequest upRequest)
     {
-        db.SignUpRequests.Add(upRequest);
+        await db.SignUpRequests.AddAsync(upRequest);
         await db.SaveChangesAsync();
         return (await GetRequestById(upRequest.Id))!;
     }
