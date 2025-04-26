@@ -63,6 +63,10 @@ public class TeamEndpoints : IEndpointDefinition
                 {
                     return TypedResults.BadRequest(ex.InnerException?.Message ?? ex.Message);
                 }
+                catch (InvalidOperationException ex)
+                {
+                    return TypedResults.BadRequest(ex.InnerException?.Message ?? ex.Message);
+                }
             })
             .WithName("CreateTeam");
 

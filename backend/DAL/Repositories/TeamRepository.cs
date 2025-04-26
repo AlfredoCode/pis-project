@@ -23,6 +23,13 @@ public class TeamRepository(PregsysDbContext db)
             .Where(t => t.Students.Any(s => s.Id == studentId))
             .ToListAsync();
 
+    public async Task<Team?> GetStudentTeamForProject(int studentId, int projectId)
+    {
+        return await TeamsQuery
+            .Where(t => t.ProjectId == projectId && t.Students.Any(s => s.Id == studentId))
+            .FirstOrDefaultAsync();
+    }
+
     public async Task<IEnumerable<Student>?> GetStudentsInTeam(int teamId)
     {
         if (await db.Teams
