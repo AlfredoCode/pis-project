@@ -64,6 +64,21 @@ public class TeamService(TeamRepository teams, UserRepository users)
         return await teams.UpdateTeam(team);
     }
 
+    public async Task<bool> RemoveStudentFromTeam(int teamId, int studentId)
+    {
+        // TODO: check if the current user has permission to do this (is the team leader)
+
+        if (await teams.GetTeamById(teamId) is not Team team)
+            return false;
+
+        if (studentId == team.LeaderId)
+        {
+            throw new InvalidOperationException("The team leader cannot be removed from the team");
+        }
+
+        return await teams.RemoveMember(team, studentId);
+    }
+
     public async Task DeleteProject(int id)
     {
         await teams.DeleteTeam(id);

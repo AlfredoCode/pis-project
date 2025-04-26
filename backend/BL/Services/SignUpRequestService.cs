@@ -57,7 +57,7 @@ public class SignUpRequestService(
                     $"This student is already in a team ('{existingTeam.Name}') for this project");
             }
 
-            await teams.AddMember(request.TeamId, request.StudentId);
+            await teams.AddMember(request.Team, request.StudentId);
         }
 
         return true;

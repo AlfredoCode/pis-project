@@ -27,14 +27,14 @@ public class TeamRepository(PregsysDbContext db)
     {
         return await TeamsQuery
             .Where(t => t.ProjectId == projectId && t.Students.Any(s => s.Id == studentId))
-            .FirstOrDefaultAsync();
+            .SingleOrDefaultAsync();
     }
 
     public async Task<IEnumerable<Student>?> GetStudentsInTeam(int teamId)
     {
         if (await db.Teams
             .Include(t => t.Students)
-            .FirstOrDefaultAsync(t => t.Id == teamId) is Team team)
+            .SingleOrDefaultAsync(t => t.Id == teamId) is Team team)
         {
             return team.Students;
         }
@@ -45,7 +45,7 @@ public class TeamRepository(PregsysDbContext db)
         => await TeamsQuery
             .Include(t => t.Students)
             .Include(t => t.SignUpRequests)
-            .FirstOrDefaultAsync(t => t.Id == id);
+            .SingleOrDefaultAsync(t => t.Id == id);
 
     public async Task<Team> CreateTeam(Team team)
     {
@@ -54,14 +54,26 @@ public class TeamRepository(PregsysDbContext db)
         return (await GetTeamById(team.Id))!;
     }
 
-    public async Task AddMember(int teamId, int studentId)
+    public async Task<bool> AddMember(Team team, int studentId)
     {
-        if (await db.Teams.FindAsync(teamId) is Team team
-            && await db.Students.FindAsync(studentId) is Student student)
+        if (await db.Students.FindAsync(studentId) is Student student)
         {
             team.Students.Add(student);
-            db.SaveChanges();
+            await db.SaveChangesAsync();
+            return true;
         }
+        return false;
+    }
+
+    public async Task<bool> RemoveMember(Team team, int studentId)
+    {
+        if (team.Students.FirstOrDefault(s => s.Id == studentId) is Student student)
+        {
+            bool removed = team.Students.Remove(student);
+            await db.SaveChangesAsync();
+            return removed;
+        }
+        return false;
     }
 
     public async Task<Team> UpdateTeam(Team team)
