@@ -1,20 +1,20 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import '../styles/navigation.css';
 
 function Navigation({ user }) {
 	return (
 		<nav className="nav-bar">
 			<div className="nav-left">
-				<Link className="nav-logo" to="/home">Project Manager</Link>
+				<NavLink className="nav-logo" to="/home">Project Manager</NavLink>
 			</div>
 		  	<div className="nav-middle">
-				<Link className="nav-item nav-item-selected" to="/home">Home</Link>
+				<NavLink className={({ isActive }) => `nav-item ${isActive ? 'nav-item-selected' : ''}`} to="/home">Home</NavLink>
 				{user.role === 'Student' && (
-					<Link className="nav-item" to="/projects">Projects</Link>
+					<NavLink className={({ isActive }) => `nav-item ${isActive ? 'nav-item-selected' : ''}`} to="/projects">Projects</NavLink>
 				)}
 				{user.role === 'Teacher' && (
-					<Link className="nav-item" to="/projects/new">Create New Project</Link>
+					<NavLink className={({ isActive }) => `nav-item ${isActive ? 'nav-item-selected' : ''}`} to="/projects/new">Create New Project</NavLink>
 				)}
 			</div>
 		  	<div className="nav-right">

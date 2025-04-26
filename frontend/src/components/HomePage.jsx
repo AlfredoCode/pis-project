@@ -2,10 +2,12 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 import api from '../api.js';
 import Alert from './Alert';
+import LoadingScreen from './LoadingScreen.jsx';
 import Navigation from "./Navigation";
 import RowItemList from './RowItemList';
 import { ProjectCardStudent, ProjectCardTeacher } from './ProjectCards';
 import { SearchBar, SortSelect, FilterSelect } from './FilterTools';
+import { filterProjects } from '../utils/filterProjects.js';
 import '../styles/card-container.css';
 import '../styles/home.css';
 
@@ -31,6 +33,7 @@ function HomePage() {
 
 	const now = new Date();
 
+	// TODO: BROKEN, DO NOT USE, WAITING FOR ENDPOINT IMPLEMENTATION
 	useEffect(() => {
 		const fetchData = async () => {
 			try {
@@ -136,62 +139,23 @@ function HomePage() {
 		);
 	}
 
+	// Projects filtering
 	const displayedProjects = useMemo(() => {
-		let result = [...projects].filter(p =>
-			p.name.toLowerCase().includes(searchTerm.toLowerCase())
-		);
-
-		if (filterKey) {
-			switch (filterKey) {
-				case 'submitted':
-					result = result.filter(p => p.submitted);
-					break;
-				case 'not-submitted':
-					result = result.filter(p => !p.submitted);
-					break;
-				case 'evaluated':
-					result = result.filter(p => p.points !== null);
-					break;
-				case 'not-evaluated':
-					result = result.filter(p => p.points === null);
-					break;
-				case 'pending-evaluation':
-					result = result.filter(p => p.submissions > p.evaluations);
-					break;
-				case 'before-deadline':
-					result = result.filter(p => new Date(p.deadline) >= now);
-					break;
-				case 'after-deadline':
-					result = result.filter(p => new Date(p.deadline) < now);
-					break;
-				default:
-					break;
-			}
-		}
-
-		result.sort((a, b) => {
-			switch (sortOption) {
-				case 'name-asc': return a.name.localeCompare(b.name);
-				case 'name-desc': return b.name.localeCompare(a.name);
-				case 'deadline-asc': return new Date(a.deadline) - new Date(b.deadline);
-				case 'deadline-desc': return new Date(b.deadline) - new Date(a.deadline);
-				default: return 0;
-			}
-		});
-
-		return result;
+		return filterProjects(projects, { searchTerm, filterKey, sortOption });
 	}, [projects, searchTerm, filterKey, sortOption]);
 
+
+	// Dashboard filtering
 	const upcomingDeadlines = projects.filter(p => new Date(p.deadline) >= now)
 		.sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
 
 	const teacherPendingEvaluations = projects.filter(p => p.submissions > p.evaluations);
 
-	if (loading) return <div>Loading...</div>;
 
 	return (
 		<div className="main-content-wrapper">
 			{alert && <Alert type={alert.type} message={alert.message} duration={3500} onClose={() => setAlert(null)} />}
+			{loading && <LoadingScreen />}
 			<Navigation user={user} />
 			<div className="home-container">
 				<h2>Dashboard</h2>
