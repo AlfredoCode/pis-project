@@ -1,0 +1,25 @@
+
+
+.error-overlay {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--color-background1);
+    color: var(--color-text1);
+}
+
+.error-overlay .error-message {
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    align-items: start;
+    width: fit-content;
+    padding: 1em;
+    border-radius: 8px;
+	box-shadow: 0 0 10px rgb(from var(--color-background2) r g b / 0.5);
+    color: var(--color-muted);
+	background: var(--color-background1);
+}

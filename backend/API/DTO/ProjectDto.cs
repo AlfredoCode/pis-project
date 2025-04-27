@@ -1,6 +1,7 @@
 ﻿using NodaTime;
 
 using PRegSys.DAL.Entities;
+using PRegSys.DAL.Repositories;
 
 namespace PRegSys.API.DTO;
 
@@ -16,6 +17,18 @@ public class ProjectReadDto(Project project) : IReadDto<ProjectReadDto, Project>
     public UserReadDto Owner { get; } = project.Owner.ToDto();
 
     public static ProjectReadDto FromEntity(Project project) => new(project);
+}
+
+public class ProjectStudentViewDto(Project project, Team? team, Student student) : ProjectReadDto(project)
+{
+    public TeamReadDto? Team { get; } = team?.ToDto();
+    public StudentReadDto Student { get; } = student.ToDto();
+}
+
+public class ProjectTeacherViewDto(ProjectTeacherView ptv) : ProjectReadDto(ptv.Project)
+{
+    public int RegisteredTeams { get; } = ptv.RegisteredTeams;
+    public int TeamsWithSubmissions { get; } = ptv.TeamsWithSubmissions;
 }
 
 public class ProjectWriteDto : IWriteDto<ProjectWriteDto, Project>

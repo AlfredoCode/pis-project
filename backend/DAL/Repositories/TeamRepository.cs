@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿﻿using Microsoft.EntityFrameworkCore;
 using PRegSys.DAL.Entities;
 
 namespace PRegSys.DAL.Repositories;
@@ -18,14 +18,18 @@ public class TeamRepository(PregsysDbContext db)
             .Where(t => t.ProjectId == projectId)
             .ToListAsync();
 
-    public async Task<IEnumerable<Team>> GetTeamsByStudentId(int studentId)
-        => await TeamsQuery
+    public async Task<IEnumerable<Team>> GetTeamsByStudentId(int studentId, bool includeSolution = false)
+        => await (includeSolution
+                ? TeamsQuery.Include(t => t.Solution).ThenInclude(s => s!.Evaluation)
+                : TeamsQuery)
             .Where(t => t.Students.Any(s => s.Id == studentId))
             .ToListAsync();
 
-    public async Task<Team?> GetStudentTeamForProject(int studentId, int projectId)
+    public async Task<Team?> GetStudentTeamForProject(int studentId, int projectId, bool includeSolution = false)
     {
-        return await TeamsQuery
+        return await (includeSolution
+                ? TeamsQuery.Include(t => t.Solution).ThenInclude(s => s!.Evaluation)
+                : TeamsQuery)
             .Where(t => t.ProjectId == projectId && t.Students.Any(s => s.Id == studentId))
             .SingleOrDefaultAsync();
     }
@@ -78,7 +82,16 @@ public class TeamRepository(PregsysDbContext db)
 
     public async Task<Team> UpdateTeam(Team team)
     {
-        db.Teams.Update(team);
+        var existingTeam = await db.Teams.FindAsync(team.Id);
+        if (existingTeam is null)
+            throw new InvalidOperationException("The given team does not exist");
+
+        existingTeam.Name = team.Name;
+        existingTeam.Description = team.Description;
+        existingTeam.LeaderId = team.LeaderId;
+        existingTeam.ProjectId = team.ProjectId;
+
+        db.Teams.Update(existingTeam);
         await db.SaveChangesAsync();
         return (await GetTeamById(team.Id))!;
     }

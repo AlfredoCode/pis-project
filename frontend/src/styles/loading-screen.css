@@ -18,5 +18,5 @@
 	background: var(--color-background1);
 	padding: 1rem 2rem;
 	border-radius: 8px;
-	box-shadow: 0 0 10px rgb(from var(--color-background2) r g b / 0.5);;
+	box-shadow: 0 0 10px rgb(from var(--color-background2) r g b / 0.5);
 }
