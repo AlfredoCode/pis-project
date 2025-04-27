@@ -13,7 +13,8 @@ public class TeamReadDto(Team team) : IReadDto<TeamReadDto, Team>
     public ProjectReadDto Project { get; } = team.Project.ToDto();
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public SolutionReadDto? Solution { get; } = team.Solution?.ToDto();
+    public SolutionReadDto? LastSolution { get; }
+        = team.Solutions?.OrderByDescending(s => s.SubmissionDate).FirstOrDefault()?.ToDto();
 
     public static TeamReadDto FromEntity(Team team) => new(team);
 }

@@ -17,6 +17,7 @@ public class EvaluationWriteDto : IWriteDto<EvaluationWriteDto, Evaluation>
     public required int Points { get; set; }
     public required string Comment { get; set; }
     public required int TeacherId { get; set; }
+    public required int SolutionId { get; set; }
 
     public Evaluation ToEntity() => new() {
         Id = default,

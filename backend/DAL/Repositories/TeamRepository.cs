@@ -5,31 +5,30 @@ namespace PRegSys.DAL.Repositories;
 
 public class TeamRepository(PregsysDbContext db)
 {
-    IQueryable<Team> TeamsQuery => db.Teams
+    IQueryable<Team> TeamsQuery(bool includeSolutions = false) =>
+        (includeSolutions
+            ? db.Teams.Include(t => t.Solutions!).ThenInclude(s => s!.Evaluation)
+            : db.Teams.AsQueryable())
         .Include(t => t.Leader)
         .Include(t => t.Project).ThenInclude(t => t.Owner);
 
     public async Task<IEnumerable<Team>> GetAllTeams()
-        => await TeamsQuery
+        => await TeamsQuery()
             .ToListAsync();
 
     public async Task<IEnumerable<Team>> GetTeamsByProjectId(int projectId)
-        => await TeamsQuery
+        => await TeamsQuery()
             .Where(t => t.ProjectId == projectId)
             .ToListAsync();
 
-    public async Task<IEnumerable<Team>> GetTeamsByStudentId(int studentId, bool includeSolution = false)
-        => await (includeSolution
-                ? TeamsQuery.Include(t => t.Solution).ThenInclude(s => s!.Evaluation)
-                : TeamsQuery)
+    public async Task<IEnumerable<Team>> GetTeamsByStudentId(int studentId, bool includeSolutions = false)
+        => await TeamsQuery(includeSolutions)
             .Where(t => t.Students.Any(s => s.Id == studentId))
             .ToListAsync();
 
-    public async Task<Team?> GetStudentTeamForProject(int studentId, int projectId, bool includeSolution = false)
+    public async Task<Team?> GetStudentTeamForProject(int studentId, int projectId, bool includeSolutions = false)
     {
-        return await (includeSolution
-                ? TeamsQuery.Include(t => t.Solution).ThenInclude(s => s!.Evaluation)
-                : TeamsQuery)
+        return await TeamsQuery(includeSolutions)
             .Where(t => t.ProjectId == projectId && t.Students.Any(s => s.Id == studentId))
             .SingleOrDefaultAsync();
     }
@@ -45,8 +44,8 @@ public class TeamRepository(PregsysDbContext db)
         return null;
     }
 
-    public async Task<Team?> GetTeamById(int id)
-        => await TeamsQuery
+    public async Task<Team?> GetTeamById(int id, bool includeSolutions = false)
+        => await TeamsQuery(includeSolutions)
             .Include(t => t.Students)
             .Include(t => t.SignUpRequests)
             .SingleOrDefaultAsync(t => t.Id == id);

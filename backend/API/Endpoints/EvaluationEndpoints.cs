@@ -29,7 +29,7 @@ public class EvaluationEndpoints : IEndpointDefinition
         group.MapPost("/evaluations",
             async Task<Created<EvaluationReadDto>> (EvaluationService evaluations, EvaluationWriteDto eval) =>
             {
-                var created = await evaluations.CreateEvaluation(eval.ToEntity());
+                var created = await evaluations.CreateEvaluation(eval.ToEntity(), eval.SolutionId);
                 return TypedResults.Created($"/evaluations/{created.Id}", created.ToDto());
             })
             .WithName("CreateEvaluation");

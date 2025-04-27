@@ -12,7 +12,7 @@ public class TeamService(TeamRepository teams, UserRepository users)
 
     public async Task<Team?> GetTeamById(int id)
     {
-        return await teams.GetTeamById(id);
+        return await teams.GetTeamById(id, includeSolutions: true);
     }
 
     public async Task<IEnumerable<Team>> GetTeamsByProjectId(int projectId)

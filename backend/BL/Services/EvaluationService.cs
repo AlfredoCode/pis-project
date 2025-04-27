@@ -15,9 +15,9 @@ public class EvaluationService(EvaluationRepository evaluations)
         return await evaluations.GetEvaluationBySolutionId(solutionId);
     }
 
-    public async Task<Evaluation> CreateEvaluation(Evaluation evaluation)
+    public async Task<Evaluation> CreateEvaluation(Evaluation evaluation, int solutionId)
     {
-        return await evaluations.CreateEvaluation(evaluation);
+        return await evaluations.CreateEvaluation(evaluation, solutionId);
     }
 
     public async Task DeleteEvaluation(int id)
