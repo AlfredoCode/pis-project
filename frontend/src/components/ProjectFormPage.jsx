@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import api from '../api';
 import Alert from './Alert';
 import LoadingScreen from './LoadingScreen';
+import ErrorScreen from './ErrorScreen';
 import Navigation from './Navigation';
 import "../styles/common.css";
 
@@ -19,8 +20,10 @@ const user = {
 
 function ProjectFormPage({ mode }) {
     const { id } = useParams(); // project id from URL if editing
+    const location = useLocation();
 	const [alert, setAlert] = useState(null);
     const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
 	const navigate = useNavigate();
 
     const [name, setName] = useState('');
@@ -41,7 +44,7 @@ function ProjectFormPage({ mode }) {
                 const res = await api.get(`/projects/${id}`);
                 setFormFields(res.data);
             } catch (error) {
-                setAlert({ type: 'error', message: 'Failed to load project, cannot be edited.' });
+                setError({ type: 'Missing data', message: 'Failed to load project data, project you want to edit probably does not exists.' });
             } finally {
                 setLoading(false);
             }
@@ -54,6 +57,10 @@ function ProjectFormPage({ mode }) {
             setMaxTeamSize(project.maxTeamSize);
             setCapacity(project.capacity);
             setDeadline(project.deadline.slice(0,16));
+            
+            if (project.owner.id !== user.id) {
+                setError({ type: 'Unauthorized action', message: 'You are not authorized to edit a this project.' });
+            }
         }
 
         function resetFormFields() {
@@ -142,6 +149,7 @@ function ProjectFormPage({ mode }) {
         <div className="main-content-wrapper">
             {alert && (<Alert type={alert.type} message={alert.message} duration={3500} onClose={() => setAlert(null)} />)}
             {loading && <LoadingScreen />}
+            {error && <ErrorScreen type={error.type} message={error.message} />}
             <Navigation user={user} />
             <div className="form-container">
                 <h2>{mode === 'edit' ? 'Edit Project' : 'Create new project'}</h2>

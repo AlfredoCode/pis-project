@@ -31,6 +31,16 @@ function ProjectPage() {
         navigate(`/project/edit/${project.id}`, { state: { project } });
     };
 
+    // Handle team creating
+    const handleTeamCreate = () => {
+        navigate(`/team/new/${project.id}`, { state: { projectId: project.id } });
+    }
+
+    // Handle team editing
+    const handleTeamEdit = () => {
+        navigate(`/team/edit/${team.id}`, { state: { team } });
+    }
+
     return (
         <div className="main-content-wrapper">
             {alert && (<Alert type={alert.type} message={alert.message} duration={3500} onClose={() => setAlert(null)} />)}
