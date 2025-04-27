@@ -18,6 +18,7 @@ public class SolutionReadDto(Solution solution) : IReadDto<SolutionReadDto, Solu
     public int? EvaluationId { get; } = solution.EvaluationId;
     public string? EvaluatedBy { get; } = solution.Evaluation?.Teacher.FullName;
     public int? EvaluationPoints { get; } = solution.Evaluation?.Points;
+    public string? EvaluationComment { get; } = solution.Evaluation?.Comment;
 
     public static SolutionReadDto FromEntity(Solution solution) => new(solution);
 }
