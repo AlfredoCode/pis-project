@@ -7,11 +7,14 @@ export default function RowItemList({ title, items }) {
     <div className="row-item-list">
         <h3>{title}</h3>
         <div className="row-list">
-        {items.map(item => (
-            <Link className="row-item" to={item.link} >
-                {item.label}
-            </Link>
-        ))}
+        {items.length > 0 ?
+            items.map(item => (
+                <Link className="row-item" key={item.key} to={item.link} >
+                    {item.label}
+                </Link>
+            )) :
+            `No ${title.toLowerCase()} to display`
+        }
         </div>
     </div>
     );

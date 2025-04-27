@@ -3,11 +3,13 @@ import { useLocation } from 'react-router-dom';
 import api from '../api.js';
 import Alert from './Alert';
 import LoadingScreen from './LoadingScreen.jsx';
+import ErrorScreen from './ErrorScreen.jsx';
 import Navigation from "./Navigation";
 import RowItemList from './RowItemList';
 import { ProjectCardStudent, ProjectCardTeacher } from './ProjectCards';
 import { SearchBar, SortSelect, FilterSelect } from './FilterTools';
 import { filterProjects } from '../utils/filterProjects.js';
+import { formatRemainingTime } from '../utils/formatDate.js';
 import '../styles/card-container.css';
 import '../styles/home.css';
 
@@ -16,16 +18,18 @@ const user = {
 	login: 'alice',
 	name: 'Alice',
 	surname: 'Wonder',
-	role: 'Student', // change to 'Teacher' to see other version
-	id: 2 // Needed to match with teams or owner
+	role: 'Teacher', // change to 'Teacher' to see other version
+	id: 1 // Needed to match with teams or owner
 };
 
 function HomePage() {
 	const location = useLocation();
 	const [alert, setAlert] = useState(location.state?.alert || null);
+	const [loading, setLoading] = useState(false);
+	const [error, setError] = useState(null);
+
 	const [projects, setProjects] = useState([]);
 	const [teamRequests, setTeamRequests] = useState([]);
-	const [loading, setLoading] = useState(true);
 
 	const [searchTerm, setSearchTerm] = useState('');
 	const [filterKey, setFilterKey] = useState('');
@@ -33,76 +37,49 @@ function HomePage() {
 
 	const now = new Date();
 
-	// TODO: BROKEN, DO NOT USE, WAITING FOR ENDPOINT IMPLEMENTATION
 	useEffect(() => {
 		const fetchData = async () => {
+			setLoading(true);
 			try {
-				const res = await api.get('/projects');
-				let fetchedProjects = res.data;
-
-				// Filter only projects user is related to
-				let relevantProjects = fetchedProjects.filter(proj =>
-					user.role === 'Student'
-						? proj.teams.some(t => t.students?.some(s => s.id === user.id))
-						: proj.ownerId === user.id
-				);
-
-				let allSolutions = [];
-				for (const proj of relevantProjects) {
-					const res = await api.get(`/projects/${proj.id}/solutions`);
-					allSolutions = allSolutions.concat(res.data);
-				}
-
-				// Enhance project with computed fields
-				const enhancedProjects = relevantProjects.map(proj => {
-					const projSolutions = allSolutions.filter(sol => sol.projectId === proj.id);
-					const submitted = projSolutions.some(sol => {
-						if (user.role === 'Student') {
-							return sol.team?.students?.some(s => s.id === user.id);
-						}
-						return true;
-					});
-					const studentEvaluation = projSolutions.find(sol =>
-						sol.evaluation && sol.team?.students?.some(s => s.id === user.id)
-					);
-
-					return {
-						id: proj.id,
-						name: proj.name,
-						course: proj.course,
-						deadline: proj.deadline,
-						capacity: proj.capacity,
-						registered: proj.teams.reduce((sum, t) => sum + (t.students?.length || 0), 0),
-						submissions: projSolutions.length,
-						evaluations: projSolutions.filter(sol => sol.evaluation !== null).length,
-						submission_date: studentEvaluation?.submissionDate || null,
-						points: studentEvaluation?.evaluation?.points || null,
-						submitted,
-						isTeamProject: proj.maxTeamSize > 1,
-						teamRequests: proj.teams.flatMap(t => t.signRequests || []).filter(req => req.state === 'Created')
-					};
-				});
-
-				setProjects(enhancedProjects);
-
-				// Set team requests if Student
 				if (user.role === 'Student') {
-					const requests = enhancedProjects.flatMap(p => p.teamRequests.map(req => ({
-						id: req.id,
-						user: req.student.username,
-						date: req.creationDate,
-						team: req.teamId,
-						teamId: req.teamId,
-					})));
-					setTeamRequests(requests);
-				}
+					const resProjects = await api.get(`/users/${user.id}/projects`);;
+					const resTeamRequests = await api.get(`/students/${user.id}/signuprequests`);
+					setTeamRequests(resTeamRequests.data);
+					console.log(resTeamRequests.data);
 
-				setLoading(false);
+					const mappedProjects = resProjects.data.map(project => ({
+						id: project.id,
+						name: project.name,
+						course: project.course,
+						owner: project.owner,
+						deadline: project.deadline,
+						submissionDate: project.team.solution?.submissionDate ?? null,
+						points: project.team.solution?.evaluationPoints ?? null,
+						isTeamProject: project.maxTeamSize === 1 ? false : true,
+						teamName: project.team.name
+					}));
+					setProjects(mappedProjects);
+				} else if (user.role === 'Teacher') {
+					const resProjects = await api.get(`/users/${user.id}/projects`);
+					
+					const mappedProjects = resProjects.data.map(project => ({
+						id: project.id,
+						name: project.name,
+						course: project.course,
+						deadline: project.deadline,
+						registered: project.registeredTeams,
+						submissions: project.teamsWithSubmissions,
+						capacity: project.capacity,
+						isTeamProject: project.maxTeamSize === 1 ? false : true
+					}));
+					setProjects(mappedProjects);
+				}
 			} catch (err) {
-				console.error(err);
-				setAlert({ type: 'error', message: 'Failed to load project data' });
+				console.error('Error fetching projects:', error);
+			} finally {
+				setLoading(false)
 			}
-		};
+		}
 
 		fetchData();
 	}, []);
@@ -133,11 +110,6 @@ function HomePage() {
 			{ value: 'not-evaluated', label: 'Not Evaluated' }
 		);
 	}
-	if (user.role === 'Teacher') {
-		filterOptions.push(
-			{ value: 'pending-evaluation', label: 'Pending Evaluation' }
-		);
-	}
 
 	// Projects filtering
 	const displayedProjects = useMemo(() => {
@@ -146,16 +118,23 @@ function HomePage() {
 
 
 	// Dashboard filtering
-	const upcomingDeadlines = projects.filter(p => new Date(p.deadline) >= now)
+	const upcomingDeadlines = projects
+		.filter(p => new Date(p.deadline) >= now)
 		.sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
 
-	const teacherPendingEvaluations = projects.filter(p => p.submissions > p.evaluations);
+	// Recent (last 3 months) Team Requests
+	const threeMonthsAgo = new Date();
+	threeMonthsAgo.setMonth(now.getMonth() - 3);
+	const recentTeamRequests = teamRequests
+		.filter(req => new Date(req.creationDate) >= threeMonthsAgo)
+		.sort((a, b) => new Date(a.creationDate) - new Date(b.creationDate));
 
 
 	return (
 		<div className="main-content-wrapper">
 			{alert && <Alert type={alert.type} message={alert.message} duration={3500} onClose={() => setAlert(null)} />}
 			{loading && <LoadingScreen />}
+			{error && <ErrorScreen type={error.type} message={error.message} />}
 			<Navigation user={user} />
 			<div className="home-container">
 				<h2>Dashboard</h2>
@@ -164,23 +143,29 @@ function HomePage() {
 						<>
 							<RowItemList
 								title="Upcoming Deadlines"
-								items={upcomingDeadlines.map(p => ({ label: p.name, link: `/projects/${p.id}` }))}
+								items={upcomingDeadlines.map(p => ({ 
+									key: p.id,
+									label: `${p.name} (${formatRemainingTime(p.deadline)})`,
+									link: `/project/${p.id}` 
+								}))}
 							/>
 							<RowItemList
 								title="Pending Team Requests"
-								items={teamRequests.map(req => ({
-									label: `Team: ${req.team}`,
-									link: `/projects/${req.id}/team`
+								items={recentTeamRequests.map(req => ({
+									key: req.id,
+									label: `${req.team.name} (${req.state})`,
+									link: `/team/${req.id}/`
 								}))}
 							/>
 						</>
 					)}
 					{user.role === 'Teacher' && (
 						<RowItemList
-							title="Projects Pending Evaluation"
-							items={teacherPendingEvaluations.map(p => ({
-								label: p.name,
-								link: `/projects/${p.id}/evaluations`
+							title="Upcoming Deadlines"
+							items={upcomingDeadlines.map(p => ({
+								key: p.id, 
+								label: `${p.name} (${formatRemainingTime(p.deadline)})`, 
+								link: `/project/${p.id}` 
 							}))}
 						/>
 					)}

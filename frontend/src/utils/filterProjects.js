@@ -26,9 +26,6 @@ export function filterProjects(projects, { searchTerm = '', filterKey = '', sort
             case 'not-evaluated':
                 result = result.filter(p => p.points === null);
                 break;
-            case 'pending-evaluation':
-                result = result.filter(p => p.submissions > p.evaluations);
-                break;
             case 'before-deadline':
                 result = result.filter(p => new Date(p.deadline) >= now);
                 break;
