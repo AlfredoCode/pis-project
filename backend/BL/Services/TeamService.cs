@@ -56,7 +56,9 @@ public class TeamService(TeamRepository teams, UserRepository users)
 
     public async Task<Team> UpdateTeam(Team team)
     {
-        if (!team.Students.Any(s => s.Id == team.LeaderId))
+        var teamStudents = await teams.GetStudentsInTeam(team.Id);
+
+        if (teamStudents != null && teamStudents.All(s => s.Id != team.LeaderId))
         {
             throw new InvalidOperationException("The new team leader is not a member of the team");
         }

@@ -78,7 +78,16 @@ public class TeamRepository(PregsysDbContext db)
 
     public async Task<Team> UpdateTeam(Team team)
     {
-        db.Teams.Update(team);
+        var existingTeam = await db.Teams.FindAsync(team.Id);
+        if (existingTeam is null)
+            throw new InvalidOperationException("The given team does not exist");
+
+        existingTeam.Name = team.Name;
+        existingTeam.Description = team.Description;
+        existingTeam.LeaderId = team.LeaderId;
+        existingTeam.ProjectId = team.ProjectId;
+
+        db.Teams.Update(existingTeam);
         await db.SaveChangesAsync();
         return (await GetTeamById(team.Id))!;
     }
