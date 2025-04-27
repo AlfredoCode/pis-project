@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http.Json;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.OpenApi;
 
 using Scalar.AspNetCore;
@@ -11,6 +12,8 @@ using PRegSys.DAL;
 using PRegSys.BL;
 using PRegSys.API;
 using PRegSys.API.Endpoints;
+using System.Text;
+using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,6 +39,29 @@ builder.Services.AddOpenApi(o => {
     o.AddSchemaTransformer<OpenApiSchemaTransformer>();
 });
 
+// Configure JWT authentication
+var jwtSettings = builder.Configuration.GetSection("JwtSettings");
+
+var jwtSecret = jwtSettings["Secret"]
+    ?? throw new InvalidOperationException("JWT Secret is not configured.");
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = jwtSettings["Issuer"],
+            ValidAudience = jwtSettings["Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret))
+        };
+    });
+
+builder.Services.AddAuthorization();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -50,6 +76,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapGet("/", () => "Hello World").WithTags("all endpoints");
 
