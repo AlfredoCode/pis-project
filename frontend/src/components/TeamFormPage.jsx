@@ -69,7 +69,7 @@ function TeamFormPage({ mode }) {
             } else {
                 fetchProject();
             }
-        } else if (mode == 'create' && id) {
+        } else if (mode === 'create' && id) {
             resetFormFields();
         }
     }, [mode, id, passedTeam]);
