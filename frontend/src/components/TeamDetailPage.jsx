@@ -6,6 +6,7 @@ import api from '../api';
 import { FiTrash, FiCheck, FiX } from 'react-icons/fi';
 import { LuCrown } from "react-icons/lu";
 import SolutionDetail from './SolutionDetail';
+import ProjectDetails from './ProjectDetails';
 
 function ConfirmModal({ open, onConfirm, onCancel, studentName }) {
   if (!open) return null;
@@ -42,7 +43,7 @@ function TeamDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedStudent, setSelectedStudent] = useState(null);
-
+  const [project, setProject] = useState(null)
   const handleTeamEdit = () => {
     navigate(`/team/edit/${team.id}`, { state: { team } });
   }
@@ -50,17 +51,25 @@ function TeamDetailPage() {
   useEffect(() => {
     if (!tId) return;
   
-    Promise.all([
-      api.get(`/teams/${tId}`),
-      api.get(`/teams/${tId}/students`),
-      api.get(`/teams/${tId}/signuprequests`),
-    ])
-      .then(([teamRes, studentsRes, signupRequestsRes]) => {
+    api.get(`/teams/${tId}`)
+      .then((teamRes) => {
         setTeam(teamRes.data);
+        const projectId = teamRes.data.project.id;
+  
+        return Promise.all([
+          api.get(`/projects/${projectId}`),
+          api.get(`/teams/${tId}/students`),
+          api.get(`/teams/${tId}/signuprequests`),
+        ]);
+      })
+      .then(([projectRes, studentsRes, signupRequestsRes]) => {
+        // you already set team above
         setStudents(studentsRes.data);
-        // Filter only requests with state === "Created"
+  
         const createdRequests = signupRequestsRes.data.filter(req => req.state === "Created");
         setSignupRequests(createdRequests);
+        console.log(projectRes)
+        setProject(projectRes.data)
         setLoading(false);
       })
       .catch((error) => {
@@ -69,6 +78,7 @@ function TeamDetailPage() {
         setLoading(false);
       });
   }, [tId]);
+  
   
 
   const handleDeleteStudent = async () => {
@@ -167,17 +177,7 @@ function TeamDetailPage() {
 
    
 
-          <div className="info-section">
-            <h2>Project Details</h2>
-            <ul className="project-details">
-              <li><strong>Name:</strong> {team.project?.name}</li>
-              <li><strong>Course:</strong> {team.project?.course}</li>
-              <li><strong>Description:</strong> {team.project?.description}</li>
-              <li><strong>Max Team Size:</strong> {team.project?.maxTeamSize}</li>
-              <li><strong>Deadline:</strong> {new Date(team.project?.deadline).toLocaleString()}</li>
-              <li><strong>Project Owner:</strong> {team.project?.owner?.fullName}</li>
-            </ul>
-          </div>
+            <ProjectDetails project={project}/>
               <div className="info-section">
                 <SolutionDetail teamId={team.id} user={user}/>
               </div>
