@@ -1,0 +1,95 @@
+.solution-detail-wrapper {
+    width: 100%;
+    margin: 0 auto;
+    font-family: Arial, sans-serif;
+  }
+  
+  .solution-detail-wrapper h2 {
+    color: #333;
+  }
+  
+  .solution-detail-card {
+    background-color: #f9f9f9;
+    display: flex;
+    flex-direction: column;
+
+  }
+  .solution-detail-card > * {
+    padding: 8px 0;
+    border-bottom: 1px solid #ddd;
+    padding: 20px 0;
+  }
+  .solution-detail-card p {
+    font-size: 16px;
+    color: #555;
+    margin: 0
+  }
+  
+  .solution-detail-card p strong {
+    color: #333;
+  }
+  
+  .download-section {
+    display: flex;
+    justify-content: center;
+  }
+  
+  .download-button {
+    background-color: #007bff;
+    
+  }
+  
+  .download-button:hover {
+    background-color: #0056b3;
+  }
+  
+  .error-message, .loading {
+    text-align: center;
+    font-size: 18px;
+    color: #e74c3c;
+    margin-top: 20px;
+  }
+  
+
+  .evaluate-button{
+    background-color: #00b377;
+
+  }
+  .evaluate-button:hover{
+    background-color: #028b5e;
+  }
+  .evaluate-section{
+    display: flex;
+    justify-content: center;
+  }
+  .download-button,
+  .evaluate-button{
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-size: 16px;
+    border:none;
+    width: 150px;
+    text-align: center;
+    cursor: pointer;
+
+  }
+
+  .comment-container,
+  .points-container{
+    display: grid;
+    grid-template-columns: 100px auto;
+    align-items: center;
+  }
+  .solution-detail-wrapper input{
+    outline: none;
+    border: 1px solid rgb(195, 204, 255);
+    margin: 0;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.points-container input{
+    width: 100px;
+}
