@@ -120,7 +120,7 @@ function ProjectFormPage({ mode }) {
             let response;
             if (mode === 'edit'){
                 // Send PUT
-                response = await api.put(`/projects/${id}`, payload);
+                response = await api.put(`/projects/${id}`, projectData);
             } else {
                 // Send POST
                 response = await api.post('/projects', projectData);
