@@ -29,19 +29,34 @@ function TeamFormPage({ mode }) {
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
     const [projectId, setProjectId] = useState('');
+    const [projectName, setProjectName] = useState('');
+    //const [projectCapacity, setProjectCapacity] = useState('');
 
     // passed team from TeamPage, no need to fetch
     const passedTeam = location.state?.team;
+    // passed project from ProjectPage, no need to fetch for check
+    const passedProject = location.state?.project;
 
-    // Fetch project data if needed
+    // Fetch team data if needed
     useEffect(() => {
-        async function fetchProject() {
+        async function fetchTeam() {
             setLoading(true);
             try {
                 const res = await api.get(`/teams/${id}`);
                 setFormFields(res.data);
-            } catch (error) {
-                setError({ type: 'Missing data', message: 'Failed to load team data, team you want to edit probably does not exists.' });
+            } catch (err) {
+                setError({ type: 'Missing data', message: 'Failed to load team data, team you want to edit probably does not exists.'});
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        async function fetchProject() {
+            try {
+                const res = await api.get(`/projects/${id}`);
+                resetFormFields(res.data);
+            } catch (err) {
+                setError({ type: 'Missing data', message: 'Failed to load project data, project for which you want to create a team probably does not exists.'});
             } finally {
                 setLoading(false);
             }
@@ -51,28 +66,34 @@ function TeamFormPage({ mode }) {
             setName(team.name);
             setDescription(team.description);
             setProjectId(team.project.id);
+            setProjectName(team.project.name);
 
             if (team.leader.id !== user.id) {
                 setError({ type: 'Unauthorized action', message: 'You are not authorized to edit a team for this project.' });
             }
         }
 
-        function resetFormFields() {
+        function resetFormFields(project) {
             setName('');
             setDescription('');
-            setProjectId(id);
+            setProjectId(project.id);
+            setProjectName(project.name);
         }
         
         if (mode === 'edit' && id) {
             if (passedTeam) {
                 setFormFields(passedTeam);
             } else {
-                fetchProject();
+                fetchTeam();
             }
         } else if (mode === 'create' && id) {
-            resetFormFields();
+            if (passedProject){
+                resetFormFields(passedProject);
+            } else {
+                fetchProject();
+            }
         }
-    }, [mode, id, passedTeam]);
+    }, [mode, id, passedTeam, passedProject]);
 
     // Handle submission POST/PUT
     const handleSubmit = async (e) => {
@@ -86,6 +107,11 @@ function TeamFormPage({ mode }) {
         };
         
         // Checks for submitted data
+        if (!teamData.name || !teamData.description) {
+            setAlert({ type: 'error', message: 'Please provide team information!' });
+            setLoading(false);
+            return;
+        }
         if (!teamData.leaderId) {
             setAlert({ type: 'error', message: 'Team leader is not properly set, please fill in the form again.' });
             setLoading(false);
@@ -96,6 +122,14 @@ function TeamFormPage({ mode }) {
             setLoading(false);
             return;
         }
+        // TODO: check for capacity
+        /*
+        if (project.teamsRegistered >= project.capacity) {
+            setAlert({ type: 'error', message: 'Project project capacity is full.' });
+            setLoading(false);
+            return;
+        }
+        */
 
         setLoading(true);
 
@@ -135,7 +169,7 @@ function TeamFormPage({ mode }) {
             {error && <ErrorScreen type={error.type} message={error.message} />}
             <Navigation user={user} />
             <div className="form-container">
-                <h2>{mode === 'edit' ? 'Edit Team' : 'Create new team'}</h2>
+                <h2>{mode === 'edit' ? `Edit Team: ${name}, for project: ${projectName}` : `Create new team for project: ${projectName}`}</h2>
                 <form onSubmit={handleSubmit}>
                 <label htmlFor="name">Name of the team:</label>
                 <input className="input-empty" id="name" type="text" placeholder="Team name" value={name} onChange={e => setName(e.target.value)} required />

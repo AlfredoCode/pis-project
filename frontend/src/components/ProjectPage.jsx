@@ -33,12 +33,12 @@ function ProjectPage() {
 
     // Handle team creating
     const handleTeamCreate = () => {
-        navigate(`/team/new/${project.id}`, { state: { projectId: project.id } });
+        navigate(`/team/new/${project.id}`, { state: { project: project } });
     }
 
     // Handle team editing
     const handleTeamEdit = () => {
-        navigate(`/team/edit/${team.id}`, { state: { team } });
+        navigate(`/team/edit/${team.id}`, { state: { project: project, team: team } });
     }
 
     return (
