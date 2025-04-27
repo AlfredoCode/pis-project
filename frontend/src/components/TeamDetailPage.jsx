@@ -49,7 +49,7 @@ function TeamDetailPage() {
 
   useEffect(() => {
     if (!tId) return;
-
+  
     Promise.all([
       api.get(`/teams/${tId}`),
       api.get(`/teams/${tId}/students`),
@@ -58,7 +58,9 @@ function TeamDetailPage() {
       .then(([teamRes, studentsRes, signupRequestsRes]) => {
         setTeam(teamRes.data);
         setStudents(studentsRes.data);
-        setSignupRequests(signupRequestsRes.data); // now it's already an array
+        // Filter only requests with state === "Created"
+        const createdRequests = signupRequestsRes.data.filter(req => req.state === "Created");
+        setSignupRequests(createdRequests);
         setLoading(false);
       })
       .catch((error) => {
@@ -67,6 +69,7 @@ function TeamDetailPage() {
         setLoading(false);
       });
   }, [tId]);
+  
 
   const handleDeleteStudent = async () => {
     if (!selectedStudent) return;
