@@ -3,7 +3,6 @@ import { useLocation } from 'react-router-dom';
 import api from '../api.js';
 import Alert from './Alert';
 import LoadingScreen from './LoadingScreen.jsx';
-import ErrorScreen from './ErrorScreen.jsx';
 import Navigation from "./Navigation";
 import RowItemList from './RowItemList';
 import { ProjectCardStudent, ProjectCardTeacher } from './ProjectCards';
@@ -26,7 +25,6 @@ function HomePage() {
 	const location = useLocation();
 	const [alert, setAlert] = useState(location.state?.alert || null);
 	const [loading, setLoading] = useState(false);
-	const [error, setError] = useState(null);
 
 	const [projects, setProjects] = useState([]);
 	const [teamRequests, setTeamRequests] = useState([]);
@@ -75,7 +73,7 @@ function HomePage() {
 					setProjects(mappedProjects);
 				}
 			} catch (err) {
-				console.error('Error fetching projects:', error);
+				console.error('Error fetching projects:', err);
 			} finally {
 				setLoading(false)
 			}
@@ -134,7 +132,6 @@ function HomePage() {
 		<div className="main-content-wrapper">
 			{alert && <Alert type={alert.type} message={alert.message} duration={3500} onClose={() => setAlert(null)} />}
 			{loading && <LoadingScreen />}
-			{error && <ErrorScreen type={error.type} message={error.message} />}
 			<Navigation user={user} />
 			<div className="home-container">
 				<h2>Dashboard</h2>
