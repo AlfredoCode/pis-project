@@ -51,6 +51,23 @@ public class TeamEndpoints : IEndpointDefinition
             })
             .WithName("GetStudentsInTeam");
 
+        group.MapDelete("/teams/{teamId}/students/{studentId}",
+            async Task<Results<NoContent, NotFound, BadRequest<string>>> (TeamService teams, int teamId, int studentId) =>
+            {
+                try
+                {
+                    if (await teams.RemoveStudentFromTeam(teamId, studentId))
+                        return TypedResults.NoContent();
+                    return TypedResults.NotFound();
+                }
+                catch (InvalidOperationException ex)
+                {
+                    return TypedResults.BadRequest(ex.InnerException?.Message ?? ex.Message);
+                }
+            })
+            .WithName("RemoveStudentFromTeam")
+            .WithDescription("Remove a student from a team.");
+
         group.MapPost("/teams",
             async Task<Results<Created<TeamReadDto>, BadRequest<string>>> (TeamService teams, TeamWriteDto team) =>
             {
@@ -60,6 +77,10 @@ public class TeamEndpoints : IEndpointDefinition
                     return TypedResults.Created($"/teams/{created.Id}", created.ToDto());
                 }
                 catch (DbUpdateException ex)
+                {
+                    return TypedResults.BadRequest(ex.InnerException?.Message ?? ex.Message);
+                }
+                catch (InvalidOperationException ex)
                 {
                     return TypedResults.BadRequest(ex.InnerException?.Message ?? ex.Message);
                 }
