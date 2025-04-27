@@ -19,12 +19,12 @@ public class EvaluationEndpoints : IEndpointDefinition
             })
             .WithName("GetEvaluationById");
 
-        group.MapGet("/solutions/{solutionId}/evaluations",
+        group.MapGet("/solutions/{solutionId}/evaluation",
             async Task<EvaluationReadDto?> (EvaluationService evaluations, int solutionId) =>
             {
                 return (await evaluations.GetEvaluationBySolutionId(solutionId))?.ToDto();
             })
-            .WithName("GetEvaluationsBySolutionId");
+            .WithName("GetEvaluationBySolutionId");
 
         group.MapPost("/evaluations",
             async Task<Created<EvaluationReadDto>> (EvaluationService evaluations, EvaluationWriteDto eval) =>

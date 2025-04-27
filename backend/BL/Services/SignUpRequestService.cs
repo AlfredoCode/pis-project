@@ -40,7 +40,8 @@ public class SignUpRequestService(
                 $"This student is already in a team ('{existingTeam.Name}') for this project");
         }
 
-        if (team.SignUpRequests.Any(r => r.StudentId == request.StudentId))
+        if (team.SignUpRequests.Any(r => r.StudentId == request.StudentId
+                                    && r.State == StudentSignUpState.Created))
         {
             throw new InvalidOperationException("The student has already requested to join this team");
         }
@@ -50,6 +51,7 @@ public class SignUpRequestService(
             throw new InvalidOperationException("The given user does not exist or is not a student");
         }
 
+        request.State = StudentSignUpState.Created;
         return await signUpRequests.CreateRequest(request);
     }
 
@@ -59,7 +61,13 @@ public class SignUpRequestService(
             return false;
 
         // TODO: check if the team leader is the one who is accepting/rejecting the request
-        // TODO: check if there is enough space in the team for the student
+
+        var students = await teams.GetStudentsInTeam(request.TeamId);
+        // check if there is enough space in the team for the student
+        if (students?.Count() == request.Team.Project.Capacity)
+        {
+            throw new InvalidOperationException($"The team ('{request.Team.Name}') is already full");
+        }
 
         await signUpRequests.UpdateRequestState(requestId, newState);
 
@@ -71,6 +79,16 @@ public class SignUpRequestService(
             {
                 throw new InvalidOperationException(
                     $"This student is already in a team ('{existingTeam.Name}') for this project");
+            }
+
+            var otherSignUpRequestsForProject =
+                (await signUpRequests.GetRequestsByStudent(request.StudentId)).Where(x =>
+                    x.Team.ProjectId == request.Team.ProjectId && x.Id != requestId);
+
+            // reject all other requests for the same project
+            foreach (var otherRequest in otherSignUpRequestsForProject)
+            {
+                await signUpRequests.UpdateRequestState(otherRequest.Id, StudentSignUpState.Rejected);
             }
 
             await teams.AddMember(request.Team, request.StudentId);

@@ -33,6 +33,57 @@ public class ProjectEndpoints : IEndpointDefinition
             })
             .WithName("GetProjectById");
 
+        group.MapGet("/users/{userId}/projects",
+            async Task<Results<Ok<IEnumerable<ProjectStudentViewDto>>, Ok<IEnumerable<ProjectTeacherViewDto>>, NotFound>>
+                (UserService users, ProjectService projects, int userId) =>
+            {
+                switch (await users.GetUserById(userId))
+                {
+                    case Student student:
+                    {
+                        var projectsByUser = await projects.GetStudentViews(student);
+                        return TypedResults.Ok(projectsByUser
+                            .Select(p => new ProjectStudentViewDto(p.project, p.team, student)));
+                    }
+                    case Teacher teacher:
+                    {
+                        var ownedProjects = await projects.GetTeacherViews(teacher.Id);
+                        return TypedResults.Ok(ownedProjects
+                            .Select(p => new ProjectTeacherViewDto(p)));
+                    }
+                }
+                return TypedResults.NotFound();
+            })
+            .WithName("GetProjectsByUserId")
+            .WithDescription("""
+                Gets all projects for a user. 
+                If the user is a student, it gets all projects for the teams they are in. 
+                If the user is a teacher, it gets all projects they own.
+                """);
+
+        group.MapGet("/users/{userId}/projects/{projectId}",
+            async Task<Results<Ok<ProjectStudentViewDto>, Ok<ProjectTeacherViewDto>, NotFound>>
+                (UserService users, ProjectService projects, int userId, int projectId) => {
+                    switch (await users.GetUserById(userId))
+                    {
+                        case Student student:
+                        {
+                            return await projects.GetStudentView(student, projectId) is { } studentView
+                                ? TypedResults.Ok(new ProjectStudentViewDto(studentView.project, studentView.team, student))
+                                : TypedResults.NotFound();
+                        }
+                        case Teacher teacher:
+                        {
+                            var teacherView = await projects.GetTeacherView(teacher.Id, projectId);
+                            return teacherView is not null
+                                ? TypedResults.Ok(new ProjectTeacherViewDto(teacherView))
+                                : TypedResults.NotFound();
+                        }
+                    }
+                    return TypedResults.NotFound();
+                })
+            .WithName("GetProjectByUserId");
+
         group.MapPost("/projects",
             async Task<Results<Created<ProjectReadDto>, BadRequest<string>>>
                 (ProjectService projects, ProjectWriteDto project) =>
