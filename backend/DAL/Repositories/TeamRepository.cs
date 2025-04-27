@@ -18,14 +18,18 @@ public class TeamRepository(PregsysDbContext db)
             .Where(t => t.ProjectId == projectId)
             .ToListAsync();
 
-    public async Task<IEnumerable<Team>> GetTeamsByStudentId(int studentId)
-        => await TeamsQuery
+    public async Task<IEnumerable<Team>> GetTeamsByStudentId(int studentId, bool includeSolution = false)
+        => await (includeSolution
+                ? TeamsQuery.Include(t => t.Solution).ThenInclude(s => s!.Evaluation)
+                : TeamsQuery)
             .Where(t => t.Students.Any(s => s.Id == studentId))
             .ToListAsync();
 
-    public async Task<Team?> GetStudentTeamForProject(int studentId, int projectId)
+    public async Task<Team?> GetStudentTeamForProject(int studentId, int projectId, bool includeSolution = false)
     {
-        return await TeamsQuery
+        return await (includeSolution
+                ? TeamsQuery.Include(t => t.Solution).ThenInclude(s => s!.Evaluation)
+                : TeamsQuery)
             .Where(t => t.ProjectId == projectId && t.Students.Any(s => s.Id == studentId))
             .SingleOrDefaultAsync();
     }

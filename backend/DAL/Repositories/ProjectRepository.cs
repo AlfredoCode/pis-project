@@ -22,6 +22,34 @@ public class ProjectRepository(PregsysDbContext db)
             .ToListAsync();
     }
 
+    public async Task<ProjectTeacherView?> GetProjectTeacherView(int teacherId, int projectId)
+    {
+        return await GetProjectTeacherViewQuery(ProjectsQuery
+                .Where(p => p.OwnerId == teacherId && p.Id == projectId))
+            .SingleOrDefaultAsync();
+    }
+
+    public async Task<IEnumerable<ProjectTeacherView>> GetProjectTeacherViews(int teacherId)
+    {
+        return await GetProjectTeacherViewQuery(ProjectsQuery
+                .Where(p => p.OwnerId == teacherId))
+            .ToListAsync();
+    }
+
+    IQueryable<ProjectTeacherView> GetProjectTeacherViewQuery(IQueryable<Project> projects) =>
+        from p in projects
+            .Include(p => p.Teams).ThenInclude(t => t.Solution).ThenInclude(s => s!.Evaluation).ThenInclude(e => e!.Teacher)
+        let registeredTeams = db.Teams.Count(t => t.ProjectId == p.Id)
+        let teamsWithSubmissions = db.Teams.Count(t => t.ProjectId == p.Id && t.Solution != null)
+        select new ProjectTeacherView(p, registeredTeams, teamsWithSubmissions);
+
+    public async Task<IEnumerable<Project>> GetProjectsByOwnerId(int id)
+    {
+        return await ProjectsQuery
+            .Where(p => p.OwnerId == id)
+            .ToListAsync();
+    }
+
     public async Task<Project> CreateProject(Project project)
     {
         db.Projects.Add(project);
@@ -41,3 +69,5 @@ public class ProjectRepository(PregsysDbContext db)
         await db.Projects.Where(p => p.Id == id).ExecuteDeleteAsync();
     }
 }
+
+public record ProjectTeacherView(Project Project, int RegisteredTeams, int TeamsWithSubmissions);

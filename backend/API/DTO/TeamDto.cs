@@ -1,4 +1,6 @@
-﻿using PRegSys.DAL.Entities;
+﻿using System.Text.Json.Serialization;
+
+using PRegSys.DAL.Entities;
 
 namespace PRegSys.API.DTO;
 
@@ -9,6 +11,9 @@ public class TeamReadDto(Team team) : IReadDto<TeamReadDto, Team>
     public string Description { get; } = team.Description;
     public UserReadDto Leader { get; } = team.Leader.ToDto();
     public ProjectReadDto Project { get; } = team.Project.ToDto();
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public SolutionReadDto? Solution { get; } = team.Solution?.ToDto();
 
     public static TeamReadDto FromEntity(Team team) => new(team);
 }

@@ -7,9 +7,9 @@ public class EvaluationRepository(PregsysDbContext db)
 {
     public async Task<Evaluation?> GetEvaluationBySolutionId(int solutionId)
         => await db.Solutions
+            .Include(e => e.Evaluation!.Teacher)
             .Where(s => s.Id == solutionId)
             .Select(s => s.Evaluation!)
-            .Include(e => e.Teacher)
             .FirstOrDefaultAsync();
 
     public async Task<Evaluation?> GetEvaluationById(int id)
