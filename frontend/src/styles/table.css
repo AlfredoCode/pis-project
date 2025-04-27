@@ -1,0 +1,27 @@
+
+.table-container {
+    height: 100%;
+    width: 100%;
+    margin-top: 2rem;
+}
+
+.styled-table{
+    width: 100%;
+    margin: 2rem 0;
+    text-align: left;
+}
+
+.styled-table tr {
+    table-layout: fixed;
+    height: 100%;
+}
+
+.styled-table td, th {
+    padding: 4px;
+    border: 1px solid var(--color-muted);
+    border-spacing: 0;
+}
+
+.styled-table button {
+    font-size: 14px;
+}

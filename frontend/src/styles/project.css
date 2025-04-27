@@ -1,0 +1,18 @@
+
+
+.page-container {
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 90vh;
+    overflow: auto;
+}
+
+.page-container .student-team {
+    width: 100%;
+}
+
+.page-container .solutions {
+    width: 100%;
+}

@@ -1,5 +1,3 @@
-
-
 export function filterProjects(projects, { searchTerm = '', filterKey = '', sortOption = 'name-asc' } = {}) {
 	const now = new Date();
 	let result = [...projects];

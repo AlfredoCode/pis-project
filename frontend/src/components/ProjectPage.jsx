@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import api from '../api';
 import Navigation from '../components/Navigation';
 import LoadingScreen from '../components/LoadingScreen';
-//import ProjectHeader from '../components/ProjectHeader';
-//import TeamList from '../components/TeamList';
-//import SolutionList from '../components/SolutionList';
 import Alert from '../components/Alert';
+import ProjectDetails from './ProjectDetails';
+import TeamList from '../components/TeamList';
+import SolutionList from '../components/SolutionList';
 import { formatDate } from '../utils/formatDate';
 import '../styles/project.css';
 
@@ -23,7 +23,6 @@ const user = {
 
 function ProjectPage() {
     const { projectId } = useParams(); // project id from URL
-    const location = useLocation();
     const [alert, setAlert] = useState(null);
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
@@ -46,7 +45,9 @@ function ProjectPage() {
 				setProject(res.data);
                 setIsInv(true);
                 isInvTemp = true;
-                studentTeamIdTemp = res.data.team.id;
+                if (user.role === 'Student') {
+                    studentTeamIdTemp = res.data.team.id;
+                }
 			} catch (err) {
 				// If not found, fallback
                 if (err.response?.status === 404) {
@@ -101,16 +102,35 @@ function ProjectPage() {
         navigate(`/team/edit/${team.id}`, { state: { project: project, team: team } });
     }
 
-    console.log(project);
-    console.log(teams);
-    console.log(solutions);
 
     return (
         <div className="main-content-wrapper">
             {alert && (<Alert type={alert.type} message={alert.message} duration={3500} onClose={() => setAlert(null)} />)}
             {loading && <LoadingScreen />}
             <Navigation user={user} />
-
+            <div className="page-container">
+                <ProjectDetails project={project} />
+                {(user.role === 'Student' && isInv) && (
+                    <div className="student-team">
+                        <h2>My solution</h2>
+                        {project?.maxTeamSize !== 1 && (
+                            <>
+                                <p>{`Team name: ${project.team.name}`}</p>
+                                <p>{`Evaluation: ${project.team.solution.evaluationPoints || 'Not evaluated'}`}</p>
+                                <button className="btn-filled-round" onClick={() => navigate(`/team/${project.team.id}`)}>Team detail</button>
+                            </>
+                        )}
+                        <p>{`Subbmision date: ${formatDate(project.team.solution.submissionDate)}`}</p>
+                        <button className="btn-filled-round" onClick={() => navigate(`/solution/${project.team.solution.id}`)}>Solution detail</button>
+                    </div>
+                )}
+                <TeamList teams={teams} individual={project?.maxTeamSize === 1} isInv={user.role === 'Student' && isInv} />
+                {(user.role === 'Teacher' && isInv) && (
+                    <div className="solutions">
+                        <SolutionList solutions={solutions} individual={project?.maxTeamSize === 1} />
+                    </div>
+                )}
+            </div>
         </div>
     );
 }
