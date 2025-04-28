@@ -1,16 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import '../styles/teamdetail.css';
-import Navigation from './Navigation';
 import api from '../api';
+import Navigation from './Navigation';
 import { FiTrash, FiCheck, FiX } from 'react-icons/fi';
 import { LuCrown } from "react-icons/lu";
 import SolutionDetail from './SolutionDetail';
 import ProjectDetails from './ProjectDetails';
+import Alert from './Alert';
 
 function ConfirmModal({ open, onConfirm, onCancel, studentName }) {
   if (!open) return null;
-
   return (
     <div className="modal-overlay">
       <div className="modal">
@@ -25,13 +24,28 @@ function ConfirmModal({ open, onConfirm, onCancel, studentName }) {
   );
 }
 
-// TODO FETCH USER
+function DisbandConfirmModal({ open, onConfirm, onCancel }) {
+  if (!open) return null;
+  return (
+    <div className="modal-overlay">
+      <div className="modal">
+        <h3>Disband Team</h3>
+        <p>Are you sure you want to disband this team? <strong>This action cannot be undone.</strong></p>
+        <div className="modal-actions">
+          <button className="confirm-button" onClick={onConfirm}>Yes, Disband</button>
+          <button className="cancel-button" onClick={onCancel}>Cancel</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 const user = {
   login: 'alice',
   name: 'Alice',
   surname: 'Wonder',
-  role: 'Teacher',
-  id: 1,
+  role: 'Student',
+  id: 5,
 };
 
 function TeamDetailPage() {
@@ -40,22 +54,45 @@ function TeamDetailPage() {
   const [team, setTeam] = useState(null);
   const [students, setStudents] = useState([]);
   const [signupRequests, setSignupRequests] = useState([]);
+  const [userSignupRequests, setUserSignupRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedStudent, setSelectedStudent] = useState(null);
-  const [project, setProject] = useState(null)
+  const [project, setProject] = useState(null);
+  const [isUserMember, setIsUserMember] = useState(false);
+  const [showDisbandConfirm, setShowDisbandConfirm] = useState(false);
+  const [alert, setAlert] = useState(null);
+
+  const showAlert = (type, message, duration = 3000) => {
+    setAlert({ type, message, duration });
+  };
+
+  const handleCancelApplication = async () => {
+    const application = userSignupRequests.find(req => req.team.id === team.id && req.state === 'Created');
+    if (application) {
+      try {
+        await api.delete(`/signuprequests/${application.id}`);
+        setUserSignupRequests(prev => prev.filter(req => req.id !== application.id));
+        showAlert('success', 'Application canceled');
+      } catch (error) {
+        showAlert('error', 'Failed to cancel application');
+      }
+    } else {
+      showAlert('info', 'You have no application to cancel');
+    }
+  };
+
   const handleTeamEdit = () => {
     navigate(`/team/edit/${team.id}`, { state: { team } });
-  }
+  };
 
   useEffect(() => {
     if (!tId) return;
-  
+
     api.get(`/teams/${tId}`)
       .then((teamRes) => {
         setTeam(teamRes.data);
         const projectId = teamRes.data.project.id;
-  
         return Promise.all([
           api.get(`/projects/${projectId}`),
           api.get(`/teams/${tId}/students`),
@@ -63,13 +100,14 @@ function TeamDetailPage() {
         ]);
       })
       .then(([projectRes, studentsRes, signupRequestsRes]) => {
-        // you already set team above
         setStudents(studentsRes.data);
-  
         const createdRequests = signupRequestsRes.data.filter(req => req.state === "Created");
         setSignupRequests(createdRequests);
-        console.log(projectRes)
-        setProject(projectRes.data)
+        setProject(projectRes.data);
+        return api.get(`/students/${user.id}/signuprequests`);
+      })
+      .then((userSignupRequestsRes) => {
+        setUserSignupRequests(userSignupRequestsRes.data);
         setLoading(false);
       })
       .catch((error) => {
@@ -78,8 +116,13 @@ function TeamDetailPage() {
         setLoading(false);
       });
   }, [tId]);
-  
-  
+
+  useEffect(() => {
+    if (students) {
+      const isMemberOfTeam = students.some(student => student.id === user.id) || user.role === "Teacher";
+      setIsUserMember(isMemberOfTeam);
+    }
+  }, [students]);
 
   const handleDeleteStudent = async () => {
     if (!selectedStudent) return;
@@ -88,9 +131,19 @@ function TeamDetailPage() {
       setStudents((prev) => prev.filter((s) => s.id !== selectedStudent.id));
       setSelectedStudent(null);
     } catch (error) {
-      console.error('Failed to delete student:', error);
       setSelectedStudent(null);
-      alert('Failed to remove student from the team.');
+      showAlert('error', 'Failed to remove student');
+    }
+  };
+
+  const confirmDisbandTeam = async () => {
+    try {
+      await api.delete(`/teams/${tId}`);
+      navigate(`/project/${project.id}`);
+    } catch (error) {
+      showAlert('error', 'Team disband failed!');
+    } finally {
+      setShowDisbandConfirm(false);
     }
   };
 
@@ -99,26 +152,51 @@ function TeamDetailPage() {
       await api.put(`/signuprequests/${requestId}/state`, null, {
         params: { newState: 'Approved' },
       });
-
       setSignupRequests(prev => prev.filter(r => r.id !== requestId));
-
+      showAlert('success', 'Request accepted');
       const updatedStudents = await api.get(`/teams/${tId}/students`);
       setStudents(updatedStudents.data);
     } catch (error) {
-      console.error('Failed to accept request:', error);
-      alert('Failed to accept request.');
+      showAlert('error', 'Failed to accept request');
     }
   };
 
+  const handleDisbandTeam = () => {
+    setShowDisbandConfirm(true);
+  };
+
+  const handleApplyToTeam = async () => {
+    try {
+      const response = await api.post(`/signuprequests`, {
+        teamId: team.id,
+        studentId: user.id,
+      });
+  
+      const newSignupRequest = response.data;
+  
+      showAlert('success', 'Request sent');
+  
+      setUserSignupRequests(prev => [...prev, newSignupRequest]);
+  
+    } catch (error) {
+      showAlert('error', 'Failed to send the request');
+    }
+  };
+  
+  useEffect(() => {
+    console.log(userSignupRequests)
+  }, [userSignupRequests])
   const handleRejectRequest = async (requestId) => {
     try {
       await api.delete(`/signuprequests/${requestId}`);
       setSignupRequests(prev => prev.filter(req => req.id !== requestId));
+      showAlert('success', 'Request rejected');
     } catch (error) {
-      console.error('Failed to reject signup request:', error);
-      alert('Failed to reject request.');
+      showAlert('error', 'Failed to reject the request');
     }
   };
+
+  const hasAlreadyApplied = userSignupRequests.some(req => req.team.id === team.id && req.state === 'Created');
 
   if (loading) {
     return (
@@ -158,44 +236,75 @@ function TeamDetailPage() {
   return (
     <div className='main-content-wrapper'>
       <Navigation user={user} />
+      {alert && (
+        <Alert
+          type={alert.type}
+          message={alert.message}
+          duration={alert.duration}
+          onClose={() => setAlert(null)}
+        />
+      )}
       <div className="page-content">
-        <button className="back-button" onClick={() => navigate(-1)}>← Back to Teams</button>
-
+        <button className="back-button" onClick={() => navigate(`/project/${project.id}`)}>← Back to project</button>
         <div className="team-detail-card">
           <div className="team-header">
             <h1 className="team-name">{team.name}</h1>
 
-            {/* Show edit button only for the team leader */}
-            {team.leader?.id === user.id && (
-              <button className="team-edit-button" onClick={handleTeamEdit} title="Edit Team">
-                Edit
-              </button>
+            {user.role === "Student" && !isUserMember && (
+              hasAlreadyApplied ? (
+                <div className="already-applied-text">
+                  <button
+                    className="team-edit-button cancel-application-button"
+                    onClick={handleCancelApplication}
+                    title="Cancel application"
+                  >
+                    Cancel application
+                  </button>
+                </div>
+              ) : (
+                <button
+                  className="apply-button team-edit-button"
+                  onClick={handleApplyToTeam}
+                  title="Apply to join this team"
+                >
+                  Send request to join
+                </button>
+              )
+            )}
+
+            {(team.leader?.id === user.id || user.role === "Teacher") && (
+              <div className='team-administration' style={{ display: 'flex', gap: 20 }}>
+                <button className="team-edit-button team-disband-button" onClick={handleDisbandTeam}>
+                  Disband team
+                </button>
+                <button className="team-edit-button" onClick={handleTeamEdit}>
+                  Edit
+                </button>
+              </div>
             )}
           </div>
 
           <p className="team-description">{team.description || 'No description provided.'}</p>
 
-   
+          <ProjectDetails project={project} />
 
-            <ProjectDetails project={project}/>
-              <div className="info-section">
-                <SolutionDetail teamId={team.id} user={user}/>
-              </div>
+          {isUserMember && (
+            <div className="info-section">
+              <SolutionDetail teamId={team.id} user={user} projectId={team.project.id}/>
+            </div>
+          )}
+
           <div className="info-section">
             <h2>Team Members</h2>
             {students.length > 0 ? (
               <ul className="student-list">
                 {students.map((student) => (
                   <li key={student.id} className="student-item">
-                    {(team.leader?.id === student.id)  && (
-                      <span className='leader-crown'>
-                        <LuCrown />
-                      </span>
+                    {(team.leader?.id === student.id) && (
+                      <span className='leader-crown'><LuCrown /></span>
                     )}
                     <span className='student-name'>{student.fullName} ({student.username})</span>
-
-                    {/* Show delete button only for the team leader or for the current user */}
-                    {(team.leader?.id === user.id || student.id === user.id || user.role == 'Teacher') && (
+                    {(team.leader?.id === user.id || student.id === user.id || user.role === 'Teacher') && (
                       <button
                         className="delete-button"
                         onClick={() => setSelectedStudent(student)}
@@ -212,47 +321,46 @@ function TeamDetailPage() {
             )}
           </div>
 
-          <div className="info-section">
-            <h2>Pending join requests</h2>
-            {signupRequests.length > 0 ? (
-              <ul className="signup-request-list">
-                {signupRequests.map((req) => (
-                  <li key={req.id} className="signup-request-item">
-                    <span>{req.student.fullName} ({req.student.username})</span>
-                    {(user.id == team.leader.id || user.role == 'Teacher') &&
-                    <div className="signup-request-actions">
-                      <button
-                        className="accept-button"
-                        onClick={() => handleAcceptRequest(req.id)}
-                        title="Accept request"
-                      >
-                        <FiCheck />
-                      </button>
-                      <button
-                        className="reject-button"
-                        onClick={() => handleRejectRequest(req.id)}
-                        title="Reject request"
-                      >
-                        <FiX />
-                      </button>
-                    </div>
-                    }
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p>No pending join requests.</p>
-            )}
-          </div>
+          {isUserMember && (
+            <div className="info-section">
+              <h2>Pending join requests</h2>
+              {signupRequests.length > 0 ? (
+                <ul className="signup-request-list">
+                  {signupRequests.map((req) => (
+                    <li key={req.id} className="signup-request-item">
+                      <span>{req.student.fullName} ({req.student.username})</span>
+                      {(user.id === team.leader.id || user.role === 'Teacher') && (
+                        <div className="signup-request-actions">
+                          <button className="accept-button" onClick={() => handleAcceptRequest(req.id)} title="Accept request">
+                            <FiCheck />
+                          </button>
+                          <button className="reject-button" onClick={() => handleRejectRequest(req.id)} title="Reject request">
+                            <FiX />
+                          </button>
+                        </div>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p>No pending join requests.</p>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Confirm Modal */}
+      {/* Confirm Modals */}
       <ConfirmModal
         open={!!selectedStudent}
         studentName={selectedStudent?.fullName}
         onConfirm={handleDeleteStudent}
         onCancel={() => setSelectedStudent(null)}
+      />
+      <DisbandConfirmModal
+        open={showDisbandConfirm}
+        onConfirm={confirmDisbandTeam}
+        onCancel={() => setShowDisbandConfirm(false)}
       />
     </div>
   );

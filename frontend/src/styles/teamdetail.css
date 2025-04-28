@@ -27,6 +27,12 @@
   font-size: 2rem;
   margin-bottom: 0.5rem;
 }
+.team-header h1{
+  margin: 0;
+}
+.team-header{
+  margin-top: 1rem
+}
 
 .team-description {
   font-size: 1.1rem;
@@ -257,8 +263,21 @@
   justify-content: space-between;
   align-items: center;
 }
+.team-disband-button{
+  background-color: crimson;
+}
+.team-disband-button:hover{
+  background-color: rgba(220, 20, 60, 0.801)
+}
 
+.cancel-application-button{
+  background-color: crimson;
 
+}
+.cancel-application-button:hover{
+
+  background-color: rgba(220, 20, 60, 0.801)
+}
 /* HEADER */
 
 /* Container for the info section */

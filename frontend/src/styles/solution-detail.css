@@ -93,3 +93,63 @@
 .points-container input{
     width: 100px;
 }
+
+/* Solution History Styles */
+.solution-history-section {
+  margin-top: 30px;
+  border-top: 1px solid #ddd;
+}
+
+.solution-history-section h3 {
+  font-size: 1.5em;
+  margin-bottom: 10px;
+}
+
+.solution-history-list {
+  background-color: #f9f9f9;
+  padding: 15px;
+  border-radius: 8px;
+}
+
+.solution-history-item {
+  margin-bottom: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.solution-history-item p {
+  margin: 5px 0;
+  color: #555;
+}
+
+.solution-history-item strong {
+  color: #333;
+}
+.download-solution{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.history-download{
+  background-color: #4b637e;
+  transform: scale(.75)
+}
+.history-download:hover{
+  background-color: #25384d;
+
+}
+
+/* UPLOAD */
+.upload-solution-section{
+  display: flex;
+  gap: 30px;
+  align-items: center;
+}
+.upload-button{
+  background-color: rgb(44, 118, 255);
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 5px;
+}
