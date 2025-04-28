@@ -21,15 +21,15 @@ function Navigation({ user }) {
 		  	<div className="nav-middle">
 				<NavLink className={({ isActive }) => `nav-item ${isActive ? 'nav-item-selected' : ''}`} to="/home">Home</NavLink>
 				<NavLink className={({ isActive }) => `nav-item ${isActive ? 'nav-item-selected' : ''}`} to="/projects">Projects</NavLink>
-				{user.role === 'Teacher' && (
+				{user && user.role === 'Teacher' && (
 					<NavLink className={({ isActive }) => `nav-item ${isActive ? 'nav-item-selected' : ''}`} to="/project/new">Create New Project</NavLink>
 				)}
 			</div>
 		  	<div className="nav-right">
 				<span className="nav-user">
-					{user.login} ({user.name} {user.surname})
+					{user?.login} ({user?.name} {user?.surname})
 				</span>
-				<span className="nav-role">[{user.role}]</span>
+				<span className="nav-role">[{user?.role}]</span>
 			</div>
 			<div className="logout-icon">
 					<button onClick={handleLogout}><FontAwesomeIcon icon={faRightFromBracket}/></button>

@@ -11,15 +11,9 @@ import { filterProjects } from '../utils/filterProjects.js';
 import { formatRemainingTime } from '../utils/formatDate.js';
 import '../styles/card-container.css';
 import '../styles/home.css';
+import { getCurrentUser } from '../auth.js';
 
-// DUMMY user data
-const user = {
-	login: 'alice',
-	name: 'Alice',
-	surname: 'Wonder',
-	role: 'Teacher', // change to 'Teacher' to see other version
-	id: 1 // Needed to match with teams or owner
-};
+
 
 function HomePage() {
 	const location = useLocation();
@@ -32,19 +26,21 @@ function HomePage() {
 	const [searchTerm, setSearchTerm] = useState('');
 	const [filterKey, setFilterKey] = useState('');
 	const [sortOption, setSortOption] = useState('name-asc');
-
+	const [user, setUser] = useState(null)
 	const now = new Date();
 
 	useEffect(() => {
 		const fetchData = async () => {
 			setLoading(true);
 			try {
-				if (user.role === 'Student') {
-					const resProjects = await api.get(`/users/${user.id}/projects`);;
-					const resTeamRequests = await api.get(`/students/${user.id}/signuprequests`);
+				let fetchedUser = await getCurrentUser();
+				setUser(fetchedUser);
+	
+				if (fetchedUser && fetchedUser.role === 'Student') {
+					const resProjects = await api.get(`/users/${fetchedUser.id}/projects`);
+					const resTeamRequests = await api.get(`/students/${fetchedUser.id}/signuprequests`);
 					setTeamRequests(resTeamRequests.data);
-					console.log(resTeamRequests.data);
-
+	
 					const mappedProjects = resProjects.data.map(project => ({
 						id: project.id,
 						name: project.name,
@@ -57,9 +53,8 @@ function HomePage() {
 						teamName: project.team.name
 					}));
 					setProjects(mappedProjects);
-				} else if (user.role === 'Teacher') {
-					const resProjects = await api.get(`/users/${user.id}/projects`);
-					
+				} else if (fetchedUser?.role === 'Teacher') {
+					const resProjects = await api.get(`/users/${fetchedUser.id}/projects`);
 					const mappedProjects = resProjects.data.map(project => ({
 						id: project.id,
 						name: project.name,
@@ -73,14 +68,15 @@ function HomePage() {
 					setProjects(mappedProjects);
 				}
 			} catch (err) {
-				console.error('Error fetching projects:', err);
+				console.error('Error fetching user or projects:', err);
 			} finally {
-				setLoading(false)
+				setLoading(false);
 			}
 		}
-
+	
 		fetchData();
 	}, []);
+	
 
 	useEffect(() => {
 		if (alert) {
@@ -100,7 +96,7 @@ function HomePage() {
 		{ value: 'before-deadline', label: 'Before Deadline' },
 		{ value: 'after-deadline', label: 'After Deadline' }
 	];
-	if (user.role === 'Student') {
+	if (user?.role === 'Student') {
 		filterOptions.push(
 			{ value: 'submitted', label: 'Submitted' },
 			{ value: 'not-submitted', label: 'Not Submitted' },
@@ -136,7 +132,7 @@ function HomePage() {
 			<div className="home-container">
 				<h2>Dashboard</h2>
 				<div className="dashboard">
-					{user.role === 'Student' && (
+					{user && user.role === 'Student' && (
 						<>
 							<RowItemList
 								title="Upcoming Deadlines"
@@ -156,7 +152,7 @@ function HomePage() {
 							/>
 						</>
 					)}
-					{user.role === 'Teacher' && (
+					{user && user.role === 'Teacher' && (
 						<RowItemList
 							title="Upcoming Deadlines"
 							items={upcomingDeadlines.map(p => ({

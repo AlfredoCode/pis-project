@@ -9,16 +9,10 @@ import TeamList from '../components/TeamList';
 import SolutionList from '../components/SolutionList';
 import { formatDate } from '../utils/formatDate';
 import '../styles/project.css';
+import { getCurrentUser } from '../auth';
 
 
-// DUMMY user data
-const user = {
-	login: 'alice',
-	name: 'Alice',
-	surname: 'Wonder',
-	role: 'Student', // change to 'Teacher' to see other version
-	id: 3 // Needed to match with teams or owner
-};
+
 
 
 function ProjectPage() {
@@ -31,64 +25,65 @@ function ProjectPage() {
     const [project, setProject] = useState(null);
 	const [teams, setTeams] = useState([]);
 	const [solutions, setSolutions] = useState([]);
-
+    const [user, setUser] = useState(null)
     const now = new Date();
 
 	useEffect(() => {
-		async function fetchData() {
-            setLoading(true);
-
-            let isInvTemp = false;
-		    let studentTeamIdTemp = null;
-
-			try {
-				// Try fetching user-specific project info
-				const res = await api.get(`/users/${user.id}/projects/${projectId}`);
-				setProject(res.data);
-                isInvTemp = true;
-                if (user.role === 'Student') {
-                    setIsInv(true);
-                    studentTeamIdTemp = res.data.team.id;
-                } else if (user.role === 'Teacher') {
-                    setIsInv(user.id === res.data.owner.id);
-                }
-			} catch (err) {
-				// If not found, fallback
-                if (err.response?.status === 404) {
-                    try {
-                        const res = await api.get(`/projects/${projectId}`);
-                        setProject(res.data);
-                        setIsInv(false);
-                    } catch (err) {
-                        console.error('Error fetching projects:', err);
-                    }
-                } else {
-                    console.error('Error fetching projects:', err);
-                }
-			}
-
-			// Always fetch teams
-            try {
-                const res = await api.get(`/projects/${projectId}/teams`);
-                setTeams(res.data);
-            } catch (err) {
-                console.error('Error fetching teams:', err);
+        async function fetchData() {
+          setLoading(true);
+          let fetchedUser = await getCurrentUser();
+          setUser(fetchedUser);
+          let isInvTemp = false;
+          let studentTeamIdTemp = null;
+      
+          try {
+            // Use fetchedUser.id here, NOT user.id
+            const res = await api.get(`/users/${fetchedUser.id}/projects/${projectId}`);
+            setProject(res.data);
+            isInvTemp = true;
+            if (fetchedUser.role === 'Student') {
+              setIsInv(true);
+              studentTeamIdTemp = res.data.team.id;
+            } else if (fetchedUser.role === 'Teacher') {
+              setIsInv(fetchedUser.id === res.data.owner.id);
             }
-
-			// Fetch solutions if needed
-			if (user.role === 'Student' && isInvTemp && studentTeamIdTemp) {
-				const res = await api.get(`/teams/${studentTeamIdTemp}/solutions`);
-				setSolutions(res.data);
-			} else if (user.role === 'Teacher' && isInvTemp) {
-				const res = await api.get(`/projects/${projectId}/solutions`);
-				setSolutions(res.data);
-			}
-
-			setLoading(false);
-		}
-
-		fetchData();
-	}, [projectId, user]);
+          } catch (err) {
+            if (err.response?.status === 404) {
+              try {
+                const res = await api.get(`/projects/${projectId}`);
+                setProject(res.data);
+                setIsInv(false);
+              } catch (err) {
+                console.error('Error fetching projects:', err);
+              }
+            } else {
+              console.error('Error fetching projects:', err);
+            }
+          }
+      
+          // Always fetch teams
+          try {
+            const res = await api.get(`/projects/${projectId}/teams`);
+            setTeams(res.data);
+          } catch (err) {
+            console.error('Error fetching teams:', err);
+          }
+      
+          // Fetch solutions if needed
+          if (fetchedUser.role === 'Student' && isInvTemp && studentTeamIdTemp) {
+            const res = await api.get(`/teams/${studentTeamIdTemp}/solutions`);
+            setSolutions(res.data);
+          } else if (fetchedUser.role === 'Teacher' && isInvTemp) {
+            const res = await api.get(`/projects/${projectId}/solutions`);
+            setSolutions(res.data);
+          }
+      
+          setLoading(false);
+        }
+      
+        fetchData();
+      }, [projectId]);
+      
 
 
     // Handle project editing
@@ -166,20 +161,20 @@ function ProjectPage() {
             <Navigation user={user} />
             <div className="page-container">
                 <ProjectDetails project={project} />
-                {(user.role === 'Teacher' && isInv) &&(
+                {(user && user.role === 'Teacher' && isInv) &&(
                     <div className="teacher-actions">
                         <button className="btn-filled-round" onClick={handleProjectDelete}>Delete this project</button>
                         <button className="btn-filled-round" onClick={handleProjectEdit}>Edit this project</button>
                     </div>
                 )}
-                {(user.role === 'Student' && !isInv) && (
+                {(user && user.role === 'Student' && !isInv) && (
                     <div className="student-actions">
                         <button className="btn-filled-round" onClick={handleTeamCreate}>
                             {project?.maxTeamSize === 1 ? 'Register on this project' : 'Create team for this project'}
                         </button>
                     </div>
                 )}
-                {(user.role === 'Student' && isInv) && (
+                {(user && user.role === 'Student' && isInv) && (
                     <div className="student-team">
                         <h2>My solution</h2>
                         <ul>
@@ -211,7 +206,7 @@ function ProjectPage() {
                     </div>
                 )}
                 <TeamList teams={teams} individual={project?.maxTeamSize === 1} />
-                {(user.role === 'Teacher' && isInv) && (
+                {(user && user.role === 'Teacher' && isInv) && (
                     <div className="solutions">
                         <SolutionList solutions={solutions} individual={project.maxTeamSize === 1} />
                     </div>

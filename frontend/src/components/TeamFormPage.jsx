@@ -6,16 +6,10 @@ import LoadingScreen from './LoadingScreen';
 import ErrorScreen from './ErrorScreen';
 import Navigation from './Navigation';
 import "../styles/common.css";
+import { getCurrentUser } from '../auth';
 
 
-// DUMMY user data
-const user = {
-	login: 'alice',
-	name: 'Alice',
-	surname: 'Wonder',
-	role: 'Teacher', // change to 'Teacher' to see other version
-	id: 8 // Needed to match with teams or owner
-};
+
 
 
 function TeamFormPage({ mode }) {
@@ -25,7 +19,7 @@ function TeamFormPage({ mode }) {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 	const navigate = useNavigate();
-
+    const [user, setUser] = useState(null)
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
     const [projectId, setProjectId] = useState('');
@@ -37,63 +31,78 @@ function TeamFormPage({ mode }) {
     // passed project from ProjectPage, no need to fetch for check
     const passedProject = location.state?.project;
 
-    // Fetch team data if needed
     useEffect(() => {
-        async function fetchTeam() {
+        async function fetchUser() {
+            let fetchedUser = await getCurrentUser();
+            setUser(fetchedUser);
+            return fetchedUser; // <== Return it to use immediately
+        }
+        async function fetchTeam(fetchedUser) {
             setLoading(true);
             try {
                 const res = await api.get(`/teams/${id}`);
-                setFormFields(res.data);
+                setFormFields(res.data, fetchedUser); // Pass fetchedUser here
             } catch (err) {
-                setError({ type: 'Missing data', message: 'Failed to load team data, team you want to edit probably does not exists.'});
-            } finally {
-                setLoading(false);
-            }
-        }
-
-        async function fetchProject() {
-            try {
-                const res = await api.get(`/projects/${id}`);
-                resetFormFields(res.data);
-            } catch (err) {
-                setError({ type: 'Missing data', message: 'Failed to load project data, project for which you want to create a team probably does not exists.'});
+                setError({ type: 'Missing data', message: 'Failed to load team data, team you want to edit probably does not exist.'});
             } finally {
                 setLoading(false);
             }
         }
     
-        function setFormFields(team) {
+        async function fetchProject() {
+            try {
+                const res = await api.get(`/projects/${id}`);
+                resetFormFields(res.data);
+            } catch (err) {
+                setError({ type: 'Missing data', message: 'Failed to load project data, project for which you want to create a team probably does not exist.'});
+            } finally {
+                setLoading(false);
+            }
+        }
+    
+        function setFormFields(team, fetchedUser) {
             setName(team.name);
             setDescription(team.description);
             setProjectId(team.project.id);
             setProjectName(team.project.name);
-
-            if (team.leader.id !== user.id) {
+    
+            if (team.leader.id !== fetchedUser.id) {
                 setError({ type: 'Unauthorized action', message: 'You are not authorized to edit a team for this project.' });
             }
         }
-
+    
         function resetFormFields(project) {
             setName('');
             setDescription('');
             setProjectId(project.id);
             setProjectName(project.name);
         }
-        
-        if (mode === 'edit' && id) {
-            if (passedTeam) {
-                setFormFields(passedTeam);
-            } else {
-                fetchTeam();
-            }
-        } else if (mode === 'create' && id) {
-            if (passedProject){
-                resetFormFields(passedProject);
-            } else {
-                fetchProject();
+    
+        async function initialize() {
+            try {
+                const fetchedUser = await fetchUser(); // Fetch user and wait
+                if (mode === 'edit' && id) {
+                    if (passedTeam) {
+                        setFormFields(passedTeam, fetchedUser);
+                    } else {
+                        await fetchTeam(fetchedUser);
+                    }
+                } else if (mode === 'create' && id) {
+                    if (passedProject) {
+                        resetFormFields(passedProject);
+                    } else {
+                        await fetchProject();
+                    }
+                }
+            } catch (err) {
+                console.error('Initialization error:', err);
+                setError({ type: 'Initialization error', message: 'Failed to initialize.' });
             }
         }
+    
+        initialize();
     }, [mode, id]);
+    
 
     // Handle submission POST/PUT
     const handleSubmit = async (e) => {

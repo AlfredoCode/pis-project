@@ -7,23 +7,17 @@ import { ProjectCard } from './ProjectCards';
 import { SearchBar, SortSelect, FilterSelect } from './FilterTools';
 import { filterProjects } from '../utils/filterProjects.js';
 import '../styles/card-container.css';
+import { getCurrentUser } from '../auth.js';
 
 
 
-// DUMMY user data
-const user = {
-	login: 'alice',
-	name: 'Alice',
-	surname: 'Wonder',
-	role: 'Student', // change to 'Teacher' to see other version
-	id: 2 // Needed to match with teams or owner
-};
+
 
 function ProjectsPage() {
 	const [alert, setAlert] = useState(location.state?.alert || null);
 	const [projects, setProjects] = useState([]);
 	const [loading, setLoading] = useState(true);
-
+	const [user, setUser] = useState(null)
 	const [searchTerm, setSearchTerm] = useState('');
 	const [filterKey, setFilterKey] = useState('');
 	const [sortOption, setSortOption] = useState('name-asc');
@@ -42,19 +36,25 @@ function ProjectsPage() {
 
     // Projects fetching
     useEffect(() => {
-        api.get('/projects')
-            .then(response => {
-                setProjects(response.data);
-                setLoading(false);
-            })
-            .catch(error => {
-                console.error('Error fetching projects:', error);
-                setAlert({
-                    type: 'error',
-                    message: 'Failed to load projects. Please try again later.'
-                });
-                setLoading(false);
-            });
+		async function init ()  {
+
+			let fetchedUser = await getCurrentUser();
+			setUser(fetchedUser);
+			api.get('/projects')
+				.then(response => {
+					setProjects(response.data);
+					setLoading(false);
+				})
+				.catch(error => {
+					console.error('Error fetching projects:', error);
+					setAlert({
+						type: 'error',
+						message: 'Failed to load projects. Please try again later.'
+					});
+					setLoading(false);
+				});
+		}
+		init()
     }, []);
 
     // Projects filtering

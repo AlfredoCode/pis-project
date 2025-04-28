@@ -8,6 +8,8 @@ import '../styles/card-container.css';
 
 
 function ProjectCardStudent({ project }) {;
+	const navigate = useNavigate();
+	console.log(project)
 	return (
 		<div className="project-card">
 			<div className="card-label"><h3>{project.name}</h3><div className="card-id">{project.id}</div></div>

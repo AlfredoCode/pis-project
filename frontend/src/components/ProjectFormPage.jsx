@@ -6,16 +6,9 @@ import LoadingScreen from './LoadingScreen';
 import ErrorScreen from './ErrorScreen';
 import Navigation from './Navigation';
 import "../styles/common.css";
+import { getCurrentUser } from '../auth';
 
 
-// DUMMY user data
-const user = {
-	login: 'alice',
-	name: 'Alice',
-	surname: 'Wonder',
-	role: 'Teacher', // change to 'Teacher' to see other version
-	id: 1 // Needed to match with teams or owner
-};
 
 
 function ProjectFormPage({ mode }) {
@@ -25,7 +18,7 @@ function ProjectFormPage({ mode }) {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 	const navigate = useNavigate();
-
+    const [user, setUser] = useState(null)
     const [name, setName] = useState('');
     const [course, setCourse] = useState('');
     const [description, setDescription] = useState('');
@@ -38,11 +31,13 @@ function ProjectFormPage({ mode }) {
 
     // Fetch project data if needed
     useEffect(() => {
-        async function fetchProject() {
+ 
+        async function fetchProject(fetchedUser) {
+            
             setLoading(true);
             try {
                 const res = await api.get(`/projects/${id}`);
-                setFormFields(res.data);
+                setFormFields(res.data, fetchedUser);
             } catch (error) {
                 setError({ type: 'Missing data', message: 'Failed to load project data, project you want to edit probably does not exists.' });
             } finally {
@@ -50,18 +45,19 @@ function ProjectFormPage({ mode }) {
             }
         }
     
-        function setFormFields(project) {
+        function setFormFields(project, fetchedUser) {
             setName(project.name);
             setCourse(project.course);
             setDescription(project.description);
             setMaxTeamSize(project.maxTeamSize);
             setCapacity(project.capacity);
-            setDeadline(project.deadline.slice(0,16));
+            setDeadline(project.deadline.slice(0, 16));
             
-            if (project.owner.id !== user.id) {
-                setError({ type: 'Unauthorized action', message: 'You are not authorized to edit a this project.' });
+            if (project.owner.id !== fetchedUser?.id) {
+                setError({ type: 'Unauthorized action', message: 'You are not authorized to edit this project.' });
             }
         }
+        
 
         function resetFormFields() {
             setName('');
@@ -71,16 +67,32 @@ function ProjectFormPage({ mode }) {
             setCapacity('');
             setDeadline('');
         }
+        async function initialize() {
+            setLoading(true);
     
-        if (mode === 'edit' && id) {
-            if (passedProject) {
-                setFormFields(passedProject);
-            } else {
-                fetchProject();
+            try {
+                // 1. Fetch user first
+                const fetchedUser = await getCurrentUser();
+                setUser(fetchedUser);
+    
+                if (mode === 'edit' && id) {
+                    if (passedProject) {
+                        setFormFields(passedProject, fetchedUser); // Pass fetchedUser
+                    } else {
+                        await fetchProject(fetchedUser); // Pass fetchedUser
+                    }
+                } else if (mode === 'create') {
+                    resetFormFields();
+                }
+            } catch (error) {
+                console.error('Initialization error:', error);
+                setError({ type: 'Initialization error', message: 'Failed to initialize.' });
+            } finally {
+                setLoading(false);
             }
-        } else if (mode == 'create') {
-            resetFormFields();
         }
+    
+        initialize()
     }, [mode, id, passedProject]);
 
     // Handle submission POST/PUT

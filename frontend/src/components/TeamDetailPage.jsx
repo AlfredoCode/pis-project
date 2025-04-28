@@ -7,6 +7,7 @@ import { LuCrown } from "react-icons/lu";
 import SolutionDetail from './SolutionDetail';
 import ProjectDetails from './ProjectDetails';
 import Alert from './Alert';
+import { getCurrentUser } from '../auth';
 
 function ConfirmModal({ open, onConfirm, onCancel, studentName }) {
   if (!open) return null;
@@ -40,13 +41,7 @@ function DisbandConfirmModal({ open, onConfirm, onCancel }) {
   );
 }
 
-const user = {
-  login: 'alice',
-  name: 'Alice',
-  surname: 'Wonder',
-  role: 'Student',
-  id: 2,
-};
+
 
 function TeamDetailPage() {
   const { tId } = useParams();
@@ -64,7 +59,8 @@ function TeamDetailPage() {
   const [alert, setAlert] = useState(null);
   const [contextMenuStudent, setContextMenuStudent] = useState(null);
   const menuRef = useRef(null);
-
+  const [user, setUser] = useState(null)
+ 
   const handleOpenContextMenu = (student) => {
     if (contextMenuStudent?.id === student.id) {
       setContextMenuStudent(null);
@@ -135,42 +131,58 @@ function TeamDetailPage() {
   };
 
   useEffect(() => {
-    if (!tId) return;
-
-    api.get(`/teams/${tId}`)
-      .then((teamRes) => {
+    async function fetchAllData() {
+      if (!tId) return;
+  
+      setLoading(true);
+      try {
+        // First, fetch user
+        const fetchedUser = await getCurrentUser();
+        setUser(fetchedUser);
+  
+        // Then fetch team info
+        const teamRes = await api.get(`/teams/${tId}`);
         setTeam(teamRes.data);
+  
         const projectId = teamRes.data.project.id;
-        return Promise.all([
+  
+        // Fetch project, students, signup requests at the same time
+        const [projectRes, studentsRes, signupRequestsRes] = await Promise.all([
           api.get(`/projects/${projectId}`),
           api.get(`/teams/${tId}/students`),
-          api.get(`/teams/${tId}/signuprequests`),
+          api.get(`/teams/${tId}/signuprequests`)
         ]);
-      })
-      .then(([projectRes, studentsRes, signupRequestsRes]) => {
+  
         setStudents(studentsRes.data);
+  
         const createdRequests = signupRequestsRes.data.filter(req => req.state === "Created");
         setSignupRequests(createdRequests);
+  
         setProject(projectRes.data);
-        return api.get(`/students/${user.id}/signuprequests`);
-      })
-      .then((userSignupRequestsRes) => {
+  
+        // Finally, now that user is loaded, fetch user-specific signup requests
+        const userSignupRequestsRes = await api.get(`/students/${fetchedUser.id}/signuprequests`);
         setUserSignupRequests(userSignupRequestsRes.data);
-        setLoading(false);
-      })
-      .catch((error) => {
+  
+      } catch (error) {
         console.error('Error fetching data:', error);
         setError('Failed to load team details. Please try again later.');
+      } finally {
         setLoading(false);
-      });
+      }
+    }
+  
+    fetchAllData();
   }, [tId]);
+  
 
   useEffect(() => {
-    if (students) {
-      const isMemberOfTeam = students.some(student => student.id === user.id) || user.role === "Teacher";
+    if (students && user) {
+      const isMemberOfTeam = students.some(student => student.id === user.id) || user?.role === "Teacher";
       setIsUserMember(isMemberOfTeam);
+      console.log(students, user)
     }
-  }, [students]);
+  }, [user, students]);
 
   const handleDeleteStudent = async () => {
     if (!selectedStudent) return;
@@ -327,7 +339,7 @@ function TeamDetailPage() {
               )
             )}
 
-            {(team.leader?.id === user.id || user.role === "Teacher") && (
+            {(team && user) && (team.leader?.id === user.id || user.role === "Teacher") && (
               <div className='team-administration' style={{ display: 'flex', gap: 20 }}>
                 <button className="team-edit-button team-disband-button" onClick={handleDisbandTeam}>
                   Disband team
@@ -415,7 +427,7 @@ function TeamDetailPage() {
                   {signupRequests.map((req) => (
                     <li key={req.id} className="signup-request-item">
                       <span>{req.student.fullName} ({req.student.username})</span>
-                      {(user.id === team.leader.id || user.role === 'Teacher') && (
+                      {(user &&team )&&(user.id === team.leader.id || user.role === 'Teacher') && (
                         <div className="signup-request-actions">
                           <button className="accept-button" onClick={() => handleAcceptRequest(req.id)} title="Accept request">
                             <FiCheck />
