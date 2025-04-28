@@ -20,6 +20,6 @@
     padding: 1em;
     border-radius: 8px;
 	box-shadow: 0 0 10px rgb(from var(--color-background2) r g b / 0.5);
-    color: var(--color-muted);
+    color: var(--color-text1);
 	background: var(--color-background1);
 }

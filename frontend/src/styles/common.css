@@ -1,38 +1,37 @@
 
 
 .btn-filled-round{
-    background-color: var(--color-accent);
-    color: var(--color-text2);
-    font-size: 16px;
-    padding: 0.4em;
-    text-align: center;
-    border: 2px solid var(--color-secondary);
-    border-radius: 12px;
-    cursor: pointer;
-}
-.btn-filled-round:hover{
-    transition-duration: 0.6s;
     background-color: var(--color-secondary);
+    color: var(--color-text2);
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+.btn-filled-round:hover {
+    background-color: var(--color-accent); /* Darker Indigo */
 }
 .btn-empty-sharp{
     background-color: var(--color-background1);
     color: var(--color-text1);
-    font-size: 16px;
-    padding: 0.2em 0.4em 0.2em 0.4em;
-    text-align: center;
-    border: solid 2px var(--color-secondary);
-    border-radius: 0px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    border: none;
     cursor: pointer;
+    transition: background-color 0.2s ease;
 }
 .btn-empty-round{
-    background-color: var(--color-secondary);
+    background-color: var(--color-background1);
     color: var(--color-text1);
-    font-size: 16px;
-    padding: 0.4em;
-    text-align: center;
-    border: none;
-    border-radius: 12px;
+    border: solid 2px var(--color-secondary);
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.9rem;
     cursor: pointer;
+    transition: background-color 0.2s ease;
 }
 .btn-empty-sharp:hover, .btn-empty-round:hover{
     transition-duration: 0.6s;
@@ -91,4 +90,12 @@
 
 .form-container form textarea {
     height: 15vh;
+}
+
+.form-container span {
+    display: flex;
+    flex-direction: row;
+    justify-content: start;
+    align-items: center;
+    gap: 1rem;
 }

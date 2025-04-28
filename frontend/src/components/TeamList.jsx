@@ -6,7 +6,7 @@ import '../styles/table.css';
 import '../styles/common.css';
 
 
-function TeamList({ teams, individual = false, isInv = false }) {
+function TeamList({ teams, individual = false }) {
 	const navigate = useNavigate();
     const [searchTerm, setSearchTerm] = useState('');
     const [sortOption, setSortOption] = useState('name-asc');
@@ -40,9 +40,7 @@ function TeamList({ teams, individual = false, isInv = false }) {
                                 <th>Leader fullname</th>
                             </>
                         )}
-						{isInv && (
-							<th>Actions</th>
-						)}
+						<th>Actions</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -55,11 +53,7 @@ function TeamList({ teams, individual = false, isInv = false }) {
                                     <td>{team.leader?.fullName}</td>
                                 </>
                             )}
-							{isInv && (
-								<td>
-									<button className="btn-filled-round" onClick={() => navigate(`/team/${team.id}`)}>Detail</button>
-								</td>
-							)}
+							<td><button className="btn-filled-round" onClick={() => navigate(`/team/${team.id}`)}>Detail</button></td>
 						</tr>
 					))}
 					{displayedTeams.length === 0 && (

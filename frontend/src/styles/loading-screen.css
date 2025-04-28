@@ -14,7 +14,7 @@
 
 .loading-spinner {
 	font-size: 1.5rem;
-	color: var(--color-muted);
+	color: var(--color-text1);
 	background: var(--color-background1);
 	padding: 1rem 2rem;
 	border-radius: 8px;

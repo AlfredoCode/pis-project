@@ -19,7 +19,7 @@ function ProjectCardStudent({ project }) {;
 			<div className="card-line"><FontAwesomeIcon icon={faPlus}/><p>Evaluation: {project.points !== null ? project.points : 'None'}</p></div>
 			<div className="card-line">
 				{project.isTeamProject && (
-				<button className="btn-filled-round" onClick={() => navigate(`/project/${project.id}/team`)}>
+				<button className="btn-filled-round" onClick={() => navigate(`/team/${project.id}`)}>
 					Team Page
 				</button>
 				)}
@@ -43,7 +43,7 @@ function ProjectCardTeacher({ project }) {
 			<div className="card-line"><FontAwesomeIcon icon={faPlus}/><p>Submissions: {project.submissions}</p></div>
 			<div className="card-line">
 				{project.isTeamProject && (
-				<button className="btn-filled-round" onClick={() => navigate(`/project/${project.id}/team`)}>
+				<button className="btn-filled-round" onClick={() => navigate(`/team/${project.id}`)}>
 					Team Page
 				</button>
 				)}

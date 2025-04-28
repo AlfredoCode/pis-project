@@ -9,8 +9,58 @@
     overflow: auto;
 }
 
+.page-container .project-details {
+    width: 100%;
+    padding: 2rem;
+}
+
+.teacher-actions {
+    width: 100%;
+    padding: 0 2rem;
+    display: flex;
+    justify-content: start;
+    align-items: center;
+    gap: 1rem;
+}
+
+.student-actions {
+    width: 100%;
+    padding: 0 2rem;
+    display: flex;
+    justify-content: start;
+    align-items: center;
+    gap: 1rem;
+}
+
 .page-container .student-team {
     width: 100%;
+    background: var(--color-text2);
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.page-container .student-team ul {
+    list-style: none;
+    padding-left: 0;
+}
+.page-container .student-team li {
+    display: grid
+;
+    grid-template-columns: 140px auto;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--color-muted);
+    font-size: 1rem;
+    color: var(--color-text1);
+    gap: 20px;
+    text-align: left;
+    align-items: center;
+}
+.page-container .student-team li span {
+    display: flex;
+    gap: 1rem;
+    justify-content: start;
+    align-items: center;
 }
 
 .page-container .solutions {

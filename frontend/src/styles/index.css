@@ -7,15 +7,15 @@
 
 :root {
 	--color-primary: #FF1B1C;
-	--color-secondary: #30618b;
-	--color-accent: #5B85AA;
+	--color-secondary: #2f5e86;
+	--color-accent: #77a3c9;
 	
 	--color-background1: #F7F7FF;
-	--color-background2: #131112;
+	--color-background2: #2c2c2c;
 	
-	--color-text1: #131112;
-	--color-text2: #F7F7FF;
-	--color-muted: #4e4d48;
+	--color-text1: #555;
+	--color-text2: #ffffff;
+	--color-muted: #ddd;
 
 	--color-success: #4BB543;
 	--color-info: #06b6d4;

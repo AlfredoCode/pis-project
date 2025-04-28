@@ -17,7 +17,7 @@ const user = {
 	name: 'Alice',
 	surname: 'Wonder',
 	role: 'Student', // change to 'Teacher' to see other version
-	id: 2 // Needed to match with teams or owner
+	id: 3 // Needed to match with teams or owner
 };
 
 
@@ -32,6 +32,8 @@ function ProjectPage() {
 	const [teams, setTeams] = useState([]);
 	const [solutions, setSolutions] = useState([]);
 
+    const now = new Date();
+
 	useEffect(() => {
 		async function fetchData() {
             setLoading(true);
@@ -43,10 +45,12 @@ function ProjectPage() {
 				// Try fetching user-specific project info
 				const res = await api.get(`/users/${user.id}/projects/${projectId}`);
 				setProject(res.data);
-                setIsInv(true);
                 isInvTemp = true;
                 if (user.role === 'Student') {
+                    setIsInv(true);
                     studentTeamIdTemp = res.data.team.id;
+                } else if (user.role === 'Teacher') {
+                    setIsInv(user.id === res.data.owner.id);
                 }
 			} catch (err) {
 				// If not found, fallback
@@ -88,20 +92,72 @@ function ProjectPage() {
 
 
     // Handle project editing
-    const handleEdit = () => {
+    const handleProjectEdit = () => {
         navigate(`/project/edit/${project.id}`, { state: { project } });
     };
 
+    // Handle project deleting
+    const handleProjectDelete = async () => {
+        if (!window.confirm('Are you sure you want to delete this project?')) {
+			return;
+		}
+
+        setLoading(true);
+        try {
+            await api.delete(`/projects/${projectId}`);
+            setAlert({ type: 'success', message: 'Project deleted successfully!' });
+            setTimeout(() => {
+				navigate('/projects');
+			}, 1500);
+        } catch (err) {
+            console.error('Failed to delete project:', err);
+			setAlert({ type: 'error', message: 'Failed to delete the project.' });
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Handle add solution
+    // TODO
+    const handleAddSolution = () => {
+
+    }
+
     // Handle team creating
-    const handleTeamCreate = () => {
-        navigate(`/team/new/${project.id}`, { state: { project: project } });
-    }
+    const handleTeamCreate = async () => {
+        if (teams.length >= project.capacity){
+            setAlert({ type: 'error', message: 'Project capacity is full.' });
+            return;
+        }
 
-    // Handle team editing
-    const handleTeamEdit = () => {
-        navigate(`/team/edit/${team.id}`, { state: { project: project, team: team } });
+        /// Individual project
+        if (project.maxTeamSize === 1) {
+            setLoading(true);
+            try {
+                const teamData = {
+                    name: user.name,
+                    description: `Individual project, student: ${user.name}`,
+                    leaderId: user.id,
+                    projectId: project.id
+                };
+                const res = await api.post('/teams', teamData);
+                if (res.status === 201) {
+                    setAlert({ type: 'success', message: 'Project registered successfully!' });
+                }
+                setTimeout(() => navigate(`/team/${res.data.id}`), 1500);
+            } catch (err) {
+                if (err.response && err.response.data) {
+                    setAlert({ type: 'error', message: err.response.data.message || 'Project registration failed.' });
+                } else {
+                    setAlert({ type: 'error', message: 'Server is not responding, registration failed.' });
+                }
+            } finally {
+                setLoading(false);
+            }
+        } else {
+            navigate(`/team/new/${project.id}`, { state: { project: project } });
+        }
     }
-
 
     return (
         <div className="main-content-wrapper">
@@ -110,24 +166,54 @@ function ProjectPage() {
             <Navigation user={user} />
             <div className="page-container">
                 <ProjectDetails project={project} />
+                {(user.role === 'Teacher' && isInv) &&(
+                    <div className="teacher-actions">
+                        <button className="btn-filled-round" onClick={handleProjectDelete}>Delete this project</button>
+                        <button className="btn-filled-round" onClick={handleProjectEdit}>Edit this project</button>
+                    </div>
+                )}
+                {(user.role === 'Student' && !isInv) && (
+                    <div className="student-actions">
+                        <button className="btn-filled-round" onClick={handleTeamCreate}>
+                            {project?.maxTeamSize === 1 ? 'Register on this project' : 'Create team for this project'}
+                        </button>
+                    </div>
+                )}
                 {(user.role === 'Student' && isInv) && (
                     <div className="student-team">
                         <h2>My solution</h2>
-                        {project?.maxTeamSize !== 1 && (
-                            <>
-                                <p>{`Team name: ${project.team.name}`}</p>
-                                <p>{`Evaluation: ${project.team.solution.evaluationPoints || 'Not evaluated'}`}</p>
-                                <button className="btn-filled-round" onClick={() => navigate(`/team/${project.team.id}`)}>Team detail</button>
-                            </>
+                        <ul>
+                            {project.maxTeamSize !== 1 && (
+                                <>
+                                    <li>
+                                        <strong>Team name:</strong>
+                                        <span>
+                                            {project.team.name}
+                                            <button className="btn-filled-round" onClick={() => navigate(`/team/${project.team.id}`)}>Team detail</button>
+                                        </span>
+                                    </li>
+                                </>
+                            )}
+                            <li>
+                                <strong>Submission date:</strong> 
+                                <span>
+                                    {project.team?.solution?.submissionDate ? formatDate(project.team?.solution?.submissionDate) : 'No submissions'}
+                                    {project.team?.solution?.submissionDate && (
+                                        <button className="btn-filled-round" onClick={() => navigate(`/solution/${project.team.solution.id}`)}>Solution detail</button>
+                                    )}
+                                </span>
+                            </li>
+                            <li><strong>Evaluation:</strong> {project.team?.solution?.evaluationPoints || 'Not evaluated'}</li>
+                        </ul>
+                        {(new Date(project.deadline) >= now) && (
+                            <button className="btn-filled-round" onClick={handleAddSolution}>Add new solution</button>
                         )}
-                        <p>{`Subbmision date: ${formatDate(project.team.solution.submissionDate)}`}</p>
-                        <button className="btn-filled-round" onClick={() => navigate(`/solution/${project.team.solution.id}`)}>Solution detail</button>
                     </div>
                 )}
-                <TeamList teams={teams} individual={project?.maxTeamSize === 1} isInv={user.role === 'Student' && isInv} />
+                <TeamList teams={teams} individual={project?.maxTeamSize === 1} />
                 {(user.role === 'Teacher' && isInv) && (
                     <div className="solutions">
-                        <SolutionList solutions={solutions} individual={project?.maxTeamSize === 1} />
+                        <SolutionList solutions={solutions} individual={project.maxTeamSize === 1} />
                     </div>
                 )}
             </div>

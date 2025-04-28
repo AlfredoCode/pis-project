@@ -166,7 +166,10 @@ function ProjectFormPage({ mode }) {
                 <input className="input-empty short" id="capacity" type="number" placeholder="Capacity" value={capacity} onChange={e => setCapacity(e.target.value)} required />
                 <label htmlFor="deadline">The projects must be submitted by (deadline):</label>
                 <input className="input-empty" id="deadline" type="datetime-local" value={deadline} onChange={e => setDeadline(e.target.value)} required />
-                <button className="btn-filled-round" type="submit">{mode === 'edit' ? 'Save changes' : 'Create project'}</button>
+                <span>
+                    <button className="btn-filled-round" type="submit">{mode === 'edit' ? 'Save changes' : 'Create project'}</button>
+                    <button className="btn-empty-round" onClick={() => navigate(-1)}>Go back</button>
+                </span>
                 </form>
             </div>
         </div>

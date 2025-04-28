@@ -93,7 +93,7 @@ function TeamFormPage({ mode }) {
                 fetchProject();
             }
         }
-    }, [mode, id, passedTeam, passedProject]);
+    }, [mode, id]);
 
     // Handle submission POST/PUT
     const handleSubmit = async (e) => {
@@ -175,7 +175,10 @@ function TeamFormPage({ mode }) {
                 <input className="input-empty" id="name" type="text" placeholder="Team name" value={name} onChange={e => setName(e.target.value)} required />
                 <label htmlFor="description">Team Description:</label>
                 <textarea className="input-empty" id="description" placeholder="Description" value={description} onChange={e => setDescription(e.target.value)} required/>
-                <button className="btn-filled-round" type="submit">{mode === 'edit' ? 'Save changes' : 'Create team'}</button>
+                <span>
+                    <button className="btn-filled-round" type="submit">{mode === 'edit' ? 'Save changes' : 'Create team'}</button>
+                    <button className="btn-empty-round" onClick={() => navigate(-1)}>Go back</button>
+                </span>
                 </form>
             </div>
         </div>
