@@ -27,6 +27,12 @@
   font-size: 2rem;
   margin-bottom: 0.5rem;
 }
+.team-header h1{
+  margin: 0;
+}
+.team-header{
+  margin-top: 1rem
+}
 
 .team-description {
   font-size: 1.1rem;
@@ -257,8 +263,21 @@
   justify-content: space-between;
   align-items: center;
 }
+.team-disband-button{
+  background-color: crimson;
+}
+.team-disband-button:hover{
+  background-color: rgba(220, 20, 60, 0.801)
+}
 
+.cancel-application-button{
+  background-color: crimson;
 
+}
+.cancel-application-button:hover{
+
+  background-color: rgba(220, 20, 60, 0.801)
+}
 /* HEADER */
 
 /* Container for the info section */
@@ -321,4 +340,60 @@
   .project-details li {
     font-size: 0.9rem;
   }
+}
+
+
+/* MEMBERS */
+.context-menu-wrapper {
+  position: relative;
+  display: inline-block;
+  margin-left: 10px;
+}
+
+.context-menu-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.context-menu {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: white;
+  border: 1px solid #ccc;
+  box-shadow: 0px 2px 8px rgba(0,0,0,0.2);
+  border-radius: 4px;
+  z-index: 100;
+}
+
+.context-menu-item {
+  display: block;
+  padding: 8px 12px;
+  width: max-content;
+  text-align: left;
+  background: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+  font-weight: bold;
+}
+
+.context-menu-item:hover {
+  background: #f0f0f0;
+}
+
+.team-right-options{
+  display: flex;
+  gap: 40px
+}
+.context-menu-wrapper{
+  box-shadow: 0 2px 5px rgb(158, 158, 158);
+  aspect-ratio: 1;
+  height: 100%;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  border-radius: 50%;
 }
