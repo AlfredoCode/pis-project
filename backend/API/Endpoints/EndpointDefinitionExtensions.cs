@@ -17,7 +17,14 @@ public static class EndpointDefinitionExtensions
         foreach (var definition in definitions)
         {
             string tag = removeSuffix(definition.GetType().Name, "Endpoints");
+
             var group = api.MapGroup("").WithTags("all endpoints", tag);
+
+            if (!definition.GetType().Name.Equals("AuthEndpoints", StringComparison.OrdinalIgnoreCase))
+            {
+                group.RequireAuthorization();
+            }
+
             definition.RegisterEndpoints(group);
         }
 

@@ -16,12 +16,14 @@ public abstract class UserReadDto(User user) : IReadDto<UserReadDto, User>
     {
         Teacher => UserRole.Teacher,
         Student => UserRole.Student,
+        _ => throw new ArgumentOutOfRangeException(nameof(user), $"Unexpected user type: {user.GetType().Name}")
     };
 
     public static UserReadDto FromEntity(User user) => user switch
     {
         Teacher t => new TeacherReadDto(t),
         Student s => new StudentReadDto(s),
+        _ => throw new ArgumentOutOfRangeException(nameof(user), $"Unexpected user type: {user.GetType().Name}")
     };
 }
 
@@ -40,6 +42,8 @@ public class UserWriteDto : IWriteDto<UserWriteDto, User>
     public required string Username { get; set; }
     public required UserRole Role { get; set; }
 
+    public required string Password { get; set; }
+
     public User ToEntity(int id) => Role switch
     {
         UserRole.Student => new Student()
@@ -48,6 +52,7 @@ public class UserWriteDto : IWriteDto<UserWriteDto, User>
             FirstName = FirstName,
             LastName = LastName,
             Username = Username,
+            Password = Password,
         },
         UserRole.Teacher => new Teacher()
         {
@@ -55,7 +60,9 @@ public class UserWriteDto : IWriteDto<UserWriteDto, User>
             FirstName = FirstName,
             LastName = LastName,
             Username = Username,
+            Password = Password,
         },
+        _ => throw new ArgumentOutOfRangeException(nameof(Role), $"Unexpected user role: {Role}")
     };
 }
 
