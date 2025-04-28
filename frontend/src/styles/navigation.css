@@ -14,7 +14,6 @@
 
 .nav-bar .nav-left{
 	height: 100%;
-	width: 30%;
 	padding-left: 60px;
 	display: flex;
 	justify-content: start;
@@ -23,7 +22,6 @@
 
 .nav-bar .nav-middle{
 	height: 100%;
-	width: 40%;
 	padding: 0 20px;
 	display: flex;
 	justify-content: start;
@@ -32,14 +30,26 @@
 
 .nav-bar .nav-right{
 	height: 100%;
-	width: 30%;
-	padding-right: 60px;
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
 	align-items: end;
 }
 
+.logout-icon {
+	height: 100%;
+	display: flex;
+	justify-content: start;
+	align-items: center;
+	margin-right: 40px;
+}
+.logout-icon button {
+	font-size: 2em;
+	border: none;
+	background: none;
+	color: var(--color-text2);
+	cursor: pointer;
+}
 
 .nav-logo{
 	font-size: 28px;
