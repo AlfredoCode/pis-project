@@ -17,9 +17,14 @@ public class EvaluationRepository(PregsysDbContext db)
             .Include(e => e.Teacher)
             .FirstOrDefaultAsync(e => e.Id == id);
 
-    public async Task<Evaluation> CreateEvaluation(Evaluation evaluation)
+    public async Task<Evaluation> CreateEvaluation(Evaluation evaluation, int solutionId)
     {
         db.Evaluations.Add(evaluation);
+
+        // add the evaluation to the solution
+        if (await db.Solutions.FindAsync(solutionId) is Solution solution)
+            solution.Evaluation = evaluation;
+
         await db.SaveChangesAsync();
         return (await GetEvaluationById(evaluation.Id))!;
     }

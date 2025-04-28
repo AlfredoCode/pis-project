@@ -31,9 +31,15 @@ public class SolutionEndpoints : IEndpointDefinition
         group.MapGet("/teams/{teamId}/solutions",
             async Task<IEnumerable<SolutionReadDto>> (SolutionService solutions, int teamId) =>
             {
-                return (await solutions.GetSolutionsByTeamId(teamId)).ToDto();
+                return (await solutions.GetSolutionsByTeamId(teamId))
+                    .OrderByDescending(s => s.SubmissionDate)
+                    .ToDto();
             })
-            .WithName("GetSolutionsByTeamId");
+            .WithName("GetSolutionsByTeamId")
+            .WithDescription("""
+                Gets all solutions to a project submitted by 
+                a specific team, ordered by date (most recently submitted first).
+                """);
 
         group.MapPost("/solutions",
             async Task<Created<SolutionReadDto>> (SolutionService solutions, SolutionWriteDto solution, IClock clock) =>

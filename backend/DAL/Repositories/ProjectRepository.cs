@@ -38,9 +38,9 @@ public class ProjectRepository(PregsysDbContext db)
 
     IQueryable<ProjectTeacherView> GetProjectTeacherViewQuery(IQueryable<Project> projects) =>
         from p in projects
-            .Include(p => p.Teams).ThenInclude(t => t.Solution).ThenInclude(s => s!.Evaluation).ThenInclude(e => e!.Teacher)
+            .Include(p => p.Teams).ThenInclude(t => t.Solutions!).ThenInclude(s => s!.Evaluation).ThenInclude(e => e!.Teacher)
         let registeredTeams = db.Teams.Count(t => t.ProjectId == p.Id)
-        let teamsWithSubmissions = db.Teams.Count(t => t.ProjectId == p.Id && t.Solution != null)
+        let teamsWithSubmissions = db.Teams.Count(t => t.ProjectId == p.Id && t.Solutions!.Any())
         select new ProjectTeacherView(p, registeredTeams, teamsWithSubmissions);
 
     public async Task<IEnumerable<Project>> GetProjectsByOwnerId(int id)

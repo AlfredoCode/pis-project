@@ -27,13 +27,13 @@ public class ProjectService(ProjectRepository projects, TeamRepository teams)
 
     public async Task<IEnumerable<(Project project, Team? team)>> GetStudentViews(Student student)
     {
-        return (await teams.GetTeamsByStudentId(student.Id, includeSolution: true))
+        return (await teams.GetTeamsByStudentId(student.Id, includeSolutions: true))
             .Select(t => (t.Project, (Team?)t));
     }
 
     public async Task<(Project project, Team? team)?> GetStudentView(Student student, int projectId)
     {
-        if (await teams.GetStudentTeamForProject(student.Id, projectId, includeSolution: true) is not { } team)
+        if (await teams.GetStudentTeamForProject(student.Id, projectId, includeSolutions: true) is not { } team)
             return null;
 
         return (team.Project, team);

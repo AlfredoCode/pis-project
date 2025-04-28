@@ -8,6 +8,7 @@ public class Solution : IEntity
 {
     public required int Id { get; set; }
     public required byte[] File { get; set; }
+    public required string FileExtension { get; set; }
     public required Instant SubmissionDate { get; set; }
 
     public required int ProjectId { get; set; }

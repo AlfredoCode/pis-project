@@ -17,7 +17,7 @@ public class Team : IEntity
 
     public ICollection<Student> Students { get; set; } = new List<Student>();
     public ICollection<SignUpRequest> SignUpRequests { get; set; } = new List<SignUpRequest>();
-    public Solution? Solution { get; set; }
+    public ICollection<Solution>? Solutions { get; set; }
 }
 
 file class Configuration : IEntityTypeConfiguration<Team>
@@ -37,9 +37,9 @@ file class Configuration : IEntityTypeConfiguration<Team>
             .WithMany()
             .UsingEntity(j => j.ToTable("TeamMembers"));
 
-        builder.HasOne(t => t.Solution)
+        builder.HasMany(t => t.Solutions)
             .WithOne(s => s.Team)
-            .HasForeignKey<Solution>(s => s.TeamId)
+            .HasForeignKey(s => s.TeamId)
             .OnDelete(DeleteBehavior.Cascade);
     }
 }
