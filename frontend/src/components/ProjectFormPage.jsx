@@ -139,11 +139,15 @@ function ProjectFormPage({ mode }) {
             }
 
             if (response.status === 200){
-                setAlert({ type: 'success', message: 'Project edited successfully!' });
+                navigate(`/project/${response.data.id}`, {state: {
+                    alert: { type: 'success', message: 'Project edited successfully!' }
+                }});
             } else if (response.status === 201) {
-                setAlert({ type: 'success', message: 'Project created successfully!' });
+                navigate(`/project/${response.data.id}`, {state: {
+                    alert: { type: 'success', message: 'Project created successfully!' }
+                }});
             }
-            setTimeout(() => navigate(`/project/${response.data.id}`), 1500);
+            
 
         } catch (error) {
             if (error.response && error.response.data) {

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import api from '../api';
 import Navigation from '../components/Navigation';
 import LoadingScreen from '../components/LoadingScreen';
@@ -12,12 +12,10 @@ import '../styles/project.css';
 import { getCurrentUser } from '../auth';
 
 
-
-
-
 function ProjectPage() {
+    const location = useLocation();
     const { projectId } = useParams(); // project id from URL
-    const [alert, setAlert] = useState(null);
+    const [alert, setAlert] = useState(location.state?.alert || null);
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
     
@@ -100,10 +98,9 @@ function ProjectPage() {
         setLoading(true);
         try {
             await api.delete(`/projects/${projectId}`);
-            setAlert({ type: 'success', message: 'Project deleted successfully!' });
-            setTimeout(() => {
-				navigate('/projects');
-			}, 1500);
+            navigate('/projects', {state: {
+                alert: { type: 'success', message: 'Project deleted successfully!' }
+            }});
         } catch (err) {
             console.error('Failed to delete project:', err);
 			setAlert({ type: 'error', message: 'Failed to delete the project.' });
@@ -113,9 +110,8 @@ function ProjectPage() {
     };
 
     // Handle add solution
-    // TODO
     const handleAddSolution = () => {
-
+        navigate(`/team/${project.team.id}`);
     }
 
     // Handle team creating
@@ -137,9 +133,10 @@ function ProjectPage() {
                 };
                 const res = await api.post('/teams', teamData);
                 if (res.status === 201) {
-                    setAlert({ type: 'success', message: 'Project registered successfully!' });
+                    navigate(`/team/${res.data.id}`, {state: {
+                        alert: { type: 'success', message: 'Project registered successfully!' }
+                    }});
                 }
-                setTimeout(() => navigate(`/team/${res.data.id}`), 1500);
             } catch (err) {
                 if (err.response && err.response.data) {
                     setAlert({ type: 'error', message: err.response.data.message || 'Project registration failed.' });

@@ -9,7 +9,6 @@ import '../styles/card-container.css';
 
 function ProjectCardStudent({ project }) {;
 	const navigate = useNavigate();
-	console.log(project)
 	return (
 		<div className="project-card">
 			<div className="card-label"><h3>{project.name}</h3><div className="card-id">{project.id}</div></div>
@@ -20,11 +19,6 @@ function ProjectCardStudent({ project }) {;
 			<div className="card-line"><FontAwesomeIcon icon={faFile}/><p>Submitted: {project.submissionDate !== null ? project.submissionDate : 'No submission'}</p></div>
 			<div className="card-line"><FontAwesomeIcon icon={faPlus}/><p>Evaluation: {project.points !== null ? project.points : 'None'}</p></div>
 			<div className="card-line">
-				{project.isTeamProject && (
-				<button className="btn-filled-round" onClick={() => navigate(`/team/${project.id}`)}>
-					Team Page
-				</button>
-				)}
 				<button className="btn-filled-round" onClick={() => navigate(`/project/${project.id}`)}>
 					Details
 				</button>
@@ -44,11 +38,6 @@ function ProjectCardTeacher({ project }) {
 			<div className="card-line"><FontAwesomeIcon icon={faUserGroup}/><p>Registered: {project.registered}/{project.capacity}</p></div>
 			<div className="card-line"><FontAwesomeIcon icon={faPlus}/><p>Submissions: {project.submissions}</p></div>
 			<div className="card-line">
-				{project.isTeamProject && (
-				<button className="btn-filled-round" onClick={() => navigate(`/team/${project.id}`)}>
-					Team Page
-				</button>
-				)}
 				<button className="btn-filled-round" onClick={() => navigate(`/project/${project.id}`)}>
 					Details
 				</button>
@@ -66,7 +55,6 @@ function ProjectCard({ project }) {
 			<div className="card-line"><FontAwesomeIcon icon={faBook}/><p>Course: {project.course}</p></div>
 			<div className="card-line"><FontAwesomeIcon icon={faUserTie}/><p>Teacher: {`${project.owner.fullName} (${project.owner.username})`}</p></div>
 			<div className="card-line"><FontAwesomeIcon icon={faClock}/><p>Deadline: {formatDate(project.deadline)}</p></div>
-			<div className="card-line"><FontAwesomeIcon icon={faUserGroup}/><p>Registered: {project.registered}/{project.capacity}</p></div>
 			<div className="card-line"><FontAwesomeIcon icon={faUserPlus}/><p>{project.maxTeamSize > 1 ? `Team size: ${project.maxTeamSize}` : `Individual project`}</p></div>
 			<div className="card-line">
 				<button className="btn-filled-round" onClick={() => navigate(`/project/${project.id}`)}>

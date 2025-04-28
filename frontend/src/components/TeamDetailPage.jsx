@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import api from '../api';
 import Navigation from './Navigation';
 import { FiTrash, FiCheck, FiX } from 'react-icons/fi';
@@ -8,6 +8,7 @@ import SolutionDetail from './SolutionDetail';
 import ProjectDetails from './ProjectDetails';
 import Alert from './Alert';
 import { getCurrentUser } from '../auth';
+
 
 function ConfirmModal({ open, onConfirm, onCancel, studentName }) {
   if (!open) return null;
@@ -44,6 +45,7 @@ function DisbandConfirmModal({ open, onConfirm, onCancel }) {
 
 
 function TeamDetailPage() {
+  const location = useLocation();
   const { tId } = useParams();
   const navigate = useNavigate();
   const [team, setTeam] = useState(null);
@@ -56,7 +58,7 @@ function TeamDetailPage() {
   const [project, setProject] = useState(null);
   const [isUserMember, setIsUserMember] = useState(false);
   const [showDisbandConfirm, setShowDisbandConfirm] = useState(false);
-  const [alert, setAlert] = useState(null);
+  const [alert, setAlert] = useState(location.state?.alert || null);
   const [contextMenuStudent, setContextMenuStudent] = useState(null);
   const menuRef = useRef(null);
   const [user, setUser] = useState(null)

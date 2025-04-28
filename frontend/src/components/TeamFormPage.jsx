@@ -9,9 +9,6 @@ import "../styles/common.css";
 import { getCurrentUser } from '../auth';
 
 
-
-
-
 function TeamFormPage({ mode }) {
     const { id } = useParams(); // team id from URL, if editing it is teamId, if creating it is projectId !!!
     const location = useLocation();
@@ -153,12 +150,14 @@ function TeamFormPage({ mode }) {
             }
 
             if (response.status === 200){
-                setAlert({ type: 'success', message: 'Project edited successfully!' });
+                navigate(`/team/${response.data.id}`, {state: {
+                    alert: { type: 'success', message: 'Project edited successfully!' }
+                }});
             } else if (response.status === 201) {
-                setAlert({ type: 'success', message: 'Project created successfully!' });
+                navigate(`/team/${response.data.id}`, {state: {
+                    alert: { type: 'success', message: 'Project created successfully!' }
+                }});
             }
-            setTimeout(() => navigate(`/team/${response.data.id}`), 1500);
-
         } catch (error) {
             if (error.response && error.response.data) {
                 setAlert({ type: 'error', message: error.response.data.message || 'Failed to create team.' });

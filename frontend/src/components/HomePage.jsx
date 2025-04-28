@@ -76,14 +76,6 @@ function HomePage() {
 	
 		fetchData();
 	}, []);
-	
-
-	useEffect(() => {
-		if (alert) {
-			const timer = setTimeout(() => setAlert(null), 3000);
-			return () => clearTimeout(timer);
-		}
-	}, [alert]);
 
 	const sortOptions = [
 		{ value: 'name-asc', label: 'Name A-Z' },

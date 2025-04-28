@@ -1,4 +1,8 @@
 
+.home-container {
+    height: 90vh;
+    overflow: scroll;
+}
 
 .home-container h2{
     margin: 30px 30px 10px 30px;

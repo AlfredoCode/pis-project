@@ -8,6 +8,7 @@ function ProjectDetails({project}) {
       <li><strong>Name:</strong> {project?.name}</li>
       <li><strong>Course:</strong> {project?.course}</li>
       <li><strong>Description:</strong> {project?.description}</li>
+      <li><strong>Capacity:</strong> {project?.capacity}</li>
       <li><strong>Max Team Size:</strong> {project?.maxTeamSize}</li>
       <li><strong>Deadline:</strong> {new Date(project?.deadline).toLocaleString()}</li>
       <li><strong>Project Owner:</strong> {project?.owner?.fullName}</li>

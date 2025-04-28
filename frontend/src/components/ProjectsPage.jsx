@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
+import { useLocation } from 'react-router-dom';
 import api from '../api.js';
 import Alert from './Alert';
 import LoadingScreen from './LoadingScreen.jsx';
@@ -10,10 +11,8 @@ import '../styles/card-container.css';
 import { getCurrentUser } from '../auth.js';
 
 
-
-
-
 function ProjectsPage() {
+	const location = useLocation();
 	const [alert, setAlert] = useState(location.state?.alert || null);
 	const [projects, setProjects] = useState([]);
 	const [loading, setLoading] = useState(true);
@@ -74,10 +73,12 @@ function ProjectsPage() {
 					<SortSelect value={sortOption} onChange={setSortOption} options={sortOptions} />
 					<FilterSelect value={filterKey} onChange={setFilterKey} options={filterOptions} placeholder="All" />
 				</div>
-				<div className="card-container">
-					{displayedProjects.map((p) =>
-                        <ProjectCard key={p.id} project={p} />
-					)}
+				<div className="projects-content">
+					<div className="card-container">
+						{displayedProjects.map((p) =>
+							<ProjectCard key={p.id} project={p} />
+						)}
+					</div>
 				</div>
 			</div>
 		</div>

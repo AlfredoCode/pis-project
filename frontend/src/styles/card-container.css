@@ -1,5 +1,6 @@
 
 
+
 .card-container{
     width: 100%;
     display: grid;
@@ -15,6 +16,10 @@
     );
 }
 
+.projects-container .projects-content {
+    height: 100vh;
+    overflow: scroll;
+}
 
 .project-card{
     height: fit-content;
