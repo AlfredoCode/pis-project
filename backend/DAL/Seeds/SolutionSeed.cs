@@ -13,6 +13,7 @@ public static class SolutionSeed
             {
                 Id = 1,
                 File = "old"u8.ToArray(),
+                FileExtension = "txt",
                 ProjectId = 1,
                 SubmissionDate = Instant.FromUtc(2023, 10, 8, 7, 0, 0),
                 TeamId = 1
@@ -21,6 +22,7 @@ public static class SolutionSeed
             {
                 Id = 2,
                 File = "new"u8.ToArray(),
+                FileExtension = "txt",
                 ProjectId = 1,
                 SubmissionDate = Instant.FromUtc(2023, 10, 10, 12, 0, 0),
                 TeamId = 1,
