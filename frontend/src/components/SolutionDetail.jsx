@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import api from '../api';
+import Alert from './Alert'; // Import the Alert component
 import '../styles/solution-detail.css';
 
 function SolutionDetail({ teamId, user, projectId }) {
@@ -11,36 +12,38 @@ function SolutionDetail({ teamId, user, projectId }) {
   const [evaluating, setEvaluating] = useState(false);
   const [solutionHistory, setSolutionHistory] = useState([]);
   const [selectedFile, setSelectedFile] = useState(null);
+  const [fileExtension, setFileExtension] = useState('');
+  const [showAlert, setShowAlert] = useState(false); // State to show alert
+  const [alertMessage, setAlertMessage] = useState('');
+  const [alertType, setAlertType] = useState('info');
+  
+  // Create a ref for the file input
+  const fileInputRef = useRef(null);
 
   async function fetchSolutionAndEvaluation() {
     try {
       const teamResponse = await api.get(`/teams/${teamId}/`);
       const lastSolution = teamResponse.data.lastSolution;
       setSolution(lastSolution);
-      console.log('Last solution:', lastSolution);
 
       // Fetching solution history
       const solutionsResponse = await api.get(`/teams/${teamId}/solutions`);
       setSolutionHistory(solutionsResponse.data);
-      console.log('Solution history:', solutionsResponse.data);
 
       if (lastSolution && lastSolution.id) {
         try {
           const evaluationResponse = await api.get(`/solutions/${lastSolution.id}/evaluation`);
           const evaluation = evaluationResponse?.data;
-          console.log('Evaluation:', evaluation);
 
           setPoints(evaluation?.points);
           setComment(evaluation?.comment);
         } catch (evaluationError) {
-          console.error('Error fetching evaluation:', evaluationError);
           setError('Failed to load evaluation details.');
         }
       }
 
       setLoading(false);
     } catch (teamError) {
-      console.error('Error fetching solution:', teamError);
       setError('Failed to load solution details.');
       setLoading(false);
     }
@@ -75,7 +78,6 @@ function SolutionDetail({ teamId, user, projectId }) {
         setEvaluating(false);
       })
       .catch((err) => {
-        console.error('Error submitting evaluation:', err);
         setEvaluating(false);
         alert('Failed to submit evaluation');
       });
@@ -86,7 +88,8 @@ function SolutionDetail({ teamId, user, projectId }) {
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setSelectedFile(reader.result.split(',')[1]);  // Removing the "data:*/*;base64," part
+        setSelectedFile(reader.result.split(',')[1]); // Removing the "data:*/*;base64," part
+        setFileExtension(file.name.split('.').pop()); // Extracting the file extension
       };
       reader.readAsDataURL(file);
     }
@@ -100,18 +103,31 @@ function SolutionDetail({ teamId, user, projectId }) {
 
     try {
       const data = {
-        file: selectedFile,     // Base64 encoded file content
-        teamId: teamId,         // Team ID
-        projectId: projectId,   // Project ID (make sure it's passed as a prop)
+        file: selectedFile, // Base64 encoded file content
+        fileExtension: fileExtension, // Sending the file extension
+        teamId: teamId, // Team ID
+        projectId: projectId, // Project ID
       };
 
       await api.post('/solutions', data);
-      alert('Solution uploaded successfully');
+      
+      // Show success alert
+      setAlertMessage('Solution uploaded successfully');
+      setAlertType('success');
+      setShowAlert(true);
+
+      // Reset the file input field using the ref
+      fileInputRef.current.value = '';  // Reset file input field
+      setSelectedFile(null); // Clear selectedFile state
+      setFileExtension(''); // Clear file extension
+
       // Fetch updated solution and history
       fetchSolutionAndEvaluation();
     } catch (err) {
-      console.error('Error uploading solution:', err);
-      alert('Failed to upload solution');
+      // Show error alert
+      setAlertMessage('Failed to upload solution');
+      setAlertType('error');
+      setShowAlert(true);
     }
   };
 
@@ -134,14 +150,29 @@ function SolutionDetail({ teamId, user, projectId }) {
 
     const blob = new Blob(byteArrays, { type: mimeType });
     const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);  // Create object URL for the blob
+    link.href = URL.createObjectURL(blob); // Create object URL for the blob
     link.download = filename;
-    link.click();  // Trigger the download
+    link.click(); // Trigger the download
   };
 
-  const handleDownload = (fileBase64, fileName, mimeType) => {
+  // Dynamically determine MIME type based on file extension
+  const getMimeTypeFromExtension = (extension) => {
+    const mimeTypes = {
+      txt: 'text/plain',
+      pdf: 'application/pdf',
+      docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      pptx: 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+      xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      zip: 'application/zip',
+      // Add more file types as needed
+    };
+    return mimeTypes[extension] || 'application/octet-stream'; // Default to 'application/octet-stream' if unknown
+  };
+
+  const handleDownload = (fileBase64, fileName, extension) => {
+    const mimeType = getMimeTypeFromExtension(extension);
     if (fileBase64) {
-      downloadFile(fileBase64, fileName, mimeType);
+      downloadFile(fileBase64, `${fileName}.${extension}`, mimeType);
     } else {
       alert('No file available to download');
     }
@@ -165,17 +196,35 @@ function SolutionDetail({ teamId, user, projectId }) {
 
   return (
     <div className="solution-detail-wrapper">
+      {showAlert && <Alert type={alertType} message={alertMessage} onClose={() => setShowAlert(false)} />}
       <h2>Solution</h2>
       <div className="solution-detail-card">
         {solution ? (
           <>
+            {user.role === 'Student' && (
+              <div className="upload-solution-section">
+                <input
+                  ref={fileInputRef} // Attach the ref to the input field
+                  type="file"
+                  onChange={handleFileChange}
+                  className="file-input"
+                />
+                <button
+                  className="upload-button"
+                  onClick={handleUploadSolution}
+                  disabled={!selectedFile}
+                >
+                  Upload Solution
+                </button>
+              </div>
+            )}
             <div className="download-solution">
               <p><strong>Submission Date:</strong> {new Date(solution.submissionDate).toLocaleString()} </p>
-              {solution.file && (
+              {solution.file && solution.fileExtension && (
                 <div className="download-section">
                   <button
                     className="download-button"
-                    onClick={() => handleDownload(solution.file, `solution-${solution.id}`, 'application/octet-stream')}
+                    onClick={() => handleDownload(solution.file, `solution-${solution.id}`, solution.fileExtension)}
                   >
                     Download
                   </button>
@@ -232,6 +281,7 @@ function SolutionDetail({ teamId, user, projectId }) {
           user.role === 'Student' && (
             <div className="upload-solution-section">
               <input
+                ref={fileInputRef} // Attach the ref to the input field
                 type="file"
                 onChange={handleFileChange}
                 className="file-input"
@@ -254,11 +304,11 @@ function SolutionDetail({ teamId, user, projectId }) {
               {solutionHistory.map((historyItem) => (
                 <div key={historyItem.id} className="solution-history-item">
                   <p><strong>Submission Date:</strong> {new Date(historyItem.submissionDate).toLocaleString()}</p>
-                  {historyItem.file && (
+                  {historyItem.file && historyItem.fileExtension && (
                     <div className="download-section">
                       <button
                         className="download-button history-download"
-                        onClick={() => handleDownload(historyItem.file, `solution-history-${historyItem.id}`, 'application/octet-stream')}
+                        onClick={() => handleDownload(historyItem.file, `solution-history-${historyItem.id}`, historyItem.fileExtension)}
                       >
                         Download
                       </button>

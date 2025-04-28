@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../api';
 import Navigation from './Navigation';
@@ -45,7 +45,7 @@ const user = {
   name: 'Alice',
   surname: 'Wonder',
   role: 'Student',
-  id: 5,
+  id: 6,
 };
 
 function TeamDetailPage() {
@@ -62,7 +62,55 @@ function TeamDetailPage() {
   const [isUserMember, setIsUserMember] = useState(false);
   const [showDisbandConfirm, setShowDisbandConfirm] = useState(false);
   const [alert, setAlert] = useState(null);
+  const [contextMenuStudent, setContextMenuStudent] = useState(null);
+  const menuRef = useRef(null);
 
+  const handleOpenContextMenu = (student) => {
+    if (contextMenuStudent?.id === student.id) {
+      setContextMenuStudent(null);
+    } else {
+      setContextMenuStudent(student);
+    }
+  };
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setContextMenuStudent(null);
+      }
+    };
+  
+    if (contextMenuStudent) {
+      document.addEventListener('mousedown', handleClickOutside);
+    } else {
+      document.removeEventListener('mousedown', handleClickOutside);
+    }
+  
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [contextMenuStudent]);
+  
+  const handleTransferLeadership = async (student) => {
+    try {
+      const updatedTeamData = {
+        name: team.name,
+        description: team.description,
+        leaderId: student.id,
+        projectId: team.project.id,
+      };
+  
+      await api.put(`/teams/${team.id}`, updatedTeamData);
+  
+      const updatedTeam = await api.get(`/teams/${team.id}`);
+      setTeam(updatedTeam.data);
+      setContextMenuStudent(null);
+      showAlert('success', `Leadership transferred to ${student.fullName}`);
+    } catch (error) {
+      console.error(error);
+      showAlert('error', 'Failed to transfer leadership');
+    }
+  };
+  
   const showAlert = (type, message, duration = 3000) => {
     setAlert({ type, message, duration });
   };
@@ -132,7 +180,14 @@ function TeamDetailPage() {
       setSelectedStudent(null);
     } catch (error) {
       setSelectedStudent(null);
-      showAlert('error', 'Failed to remove student');
+      if(selectedStudent.id == team.leader.id){
+        showAlert('error', 'Cannot remove leader of the team! Transfer the leadership first!');
+
+      }
+      else{
+
+        showAlert('error', 'Failed to remove student');
+      }
     }
   };
 
@@ -303,18 +358,49 @@ function TeamDetailPage() {
                     {(team.leader?.id === student.id) && (
                       <span className='leader-crown'><LuCrown /></span>
                     )}
-                    <span className='student-name'>{student.fullName} ({student.username})</span>
-                    {(team.leader?.id === user.id || student.id === user.id || user.role === 'Teacher') && (
-                      <button
-                        className="delete-button"
-                        onClick={() => setSelectedStudent(student)}
-                        title="Remove from team"
-                      >
-                        <FiTrash />
-                      </button>
-                    )}
-                  </li>
-                ))}
+                      <span className='student-name'>{student.fullName} ({student.username})</span>
+                    <div className='team-right-options'>
+                      {/* Transfer leadership menu for leader */}
+                      {(team.leader?.id === user.id && student.id !== user.id) && (
+                        <div className="context-menu-wrapper">
+                          <button
+                            className="context-menu-button"
+                            onClick={() => handleOpenContextMenu(student)}
+                            title="More actions"
+                          >
+                            &#x22EE; {/* Vertical 3 dots */}
+                          </button>
+
+                          {/* Context menu shown when selected */}
+                          {contextMenuStudent?.id === student.id && (
+                            <div className="context-menu">
+                              <button
+                                onClick={() => handleTransferLeadership(student)}
+                                className="context-menu-item"
+                                ref={menuRef}
+                              >
+                                Transfer leadership
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                      {/* Delete button for leader/self/teacher */}
+                      {(team.leader?.id === user.id || student.id === user.id || user.role === 'Teacher') && (
+                        <button
+                          className="delete-button"
+                          onClick={() => setSelectedStudent(student)}
+                          title="Remove from team"
+                        >
+                          <FiTrash />
+                        </button>
+                      )}
+                      
+                    </div>
+
+              </li>
+          ))}
+
               </ul>
             ) : (
               <p>No students in this team.</p>

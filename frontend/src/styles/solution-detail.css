@@ -152,4 +152,10 @@
   border: none;
   border-radius: 5px;
   padding: 5px;
+  cursor: pointer;
 }
+.upload-button:hover{
+  background-color: rgb(35, 94, 204);
+
+}
+
