@@ -45,7 +45,7 @@ const user = {
   name: 'Alice',
   surname: 'Wonder',
   role: 'Student',
-  id: 6,
+  id: 2,
 };
 
 function TeamDetailPage() {
@@ -234,7 +234,7 @@ function TeamDetailPage() {
       setUserSignupRequests(prev => [...prev, newSignupRequest]);
   
     } catch (error) {
-      showAlert('error', 'Failed to send the request');
+      showAlert('error', 'Failed to send the request, you are probably already in a team!');
     }
   };
   
@@ -305,7 +305,7 @@ function TeamDetailPage() {
           <div className="team-header">
             <h1 className="team-name">{team.name}</h1>
 
-            {user.role === "Student" && !isUserMember && (
+            {user.role === "Student" && !isUserMember && students.length != project.maxTeamSize &&(
               hasAlreadyApplied ? (
                 <div className="already-applied-text">
                   <button
