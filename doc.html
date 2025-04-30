@@ -1,0 +1,121 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>Projekt PIS</title>
+    <style type="text/css">
+    	table { border-collapse: collapse; }
+    	td, th { border: 1px solid black; padding: 0.3em 0.5em; text-align: left; }
+    	dt { font-weight: bold; margin-top: 0.5em; }
+    </style>
+</head>
+<body>
+
+<!-- Nahraďte prosím názvem tématu -->
+<h1>19: Přihlašování na projekty</h1>
+
+<!-- Editujte jména a maily autorů a jejich činnost -->
+<dl>
+	<dt>Autoři</dt>
+	<dd>Bc. Oliver Golec
+	    <a href="mailto:xgolec00@stud.fit.vutbr.cz">xgolec00@stud.fit.vutbr.cz</a> -
+		
+	</dd>
+	<dd>Bc. Dominik Hofman
+	    <a href="mailto:xhofma11@stud.fit.vutbr.cz">xhofma11@stud.fit.vutbr.cz</a> - 
+		
+	</dd>
+	<dd>Bc. Daniel Kosík
+	    <a href="mailto:xkosik10@stud.fit.vutbr.cz">xkosik10@stud.fit.vutbr.cz</a> - 
+		
+	</dd>
+	<dd>Bc. Michal Ľaš
+	    <a href="mailto:xlasmi00@stud.fit.vutbr.cz">xlasmi00@stud.fit.vutbr.cz</a> - 
+		
+	</dd>
+</dl>
+
+<!-- uživatelské účty -->
+<h2>Uživatelé systému pro testování</h2>
+<table>
+<tr><th>Login</th><th>Heslo</th><th>Role</th></tr>
+<tr><td>-</td><td>-</td><td>Učitel</td></tr>
+<tr><td>-</td><td>-</td><td>Učitel</td></tr>
+<tr><td>-</td><td>-</td><td>Student</td></tr>
+<tr><td>-</td><td>-</td><td>Student</td></tr>
+<tr><td>-</td><td>-</td><td>Student</td></tr>
+<tr><td>-</td><td>-</td><td>Student</td></tr>
+
+</table>
+
+<h2>Postup instalace</h2>
+<h3>1. BACKEND</h3>
+<ul>
+  <li>Nainstalujte <strong>PostgreSQL 17</strong> (volitelně i pgAdmin pro GUI správu)</li>
+  <li>Zapamatujte si heslo, které nastavíte pro uživatele <code>postgres</code></li>
+  <li>Ujistěte se, že nástroj <code>createdb</code> je dostupný v proměnné <code>PATH</code> (např. přidáním složky <code>bin</code> PostgreSQL do PATH)</li>
+  <li>Vytvořte databázi <code>pisdb</code>:
+    <pre><code>	createdb --username=postgres --encoding=UTF-8 pisdb</code></pre>
+  </li>
+  <li>Nastavte připojení k databázi v EF Core pomocí <code>dotnet user-secrets</code>:
+    <pre><code>
+	cd backend/API
+	dotnet user-secrets init
+	dotnet user-secrets set ConnectionStrings:PisDB "Host=localhost:5432; Username=postgres; Password=...; Database=pisdb"
+    </code></pre>
+    <p><strong>Poznámka:</strong> 'Password' je heslo uživatele postgres</p>
+  </li>
+  <li>Nainstalujte (nebo aktualizujte) EF Core CLI:
+    <pre><code>
+	dotnet tool install --global dotnet-ef
+	</code></pre>
+  </li>
+  <li>Spusťte migrace pro inicializaci databázových tabulek:
+    <pre><code>
+	cd backend/API
+	dotnet ef database update --project ../DAL
+    </code></pre>
+  </li>
+  <li>Důvěřujte vývojovému HTTPS certifikátu:
+    <pre><code>
+	dotnet dev-certs https --trust
+	</code></pre>
+  </li>
+  <li>Spusťte backend:
+    <pre><code>
+	cd backend/API
+	dotnet run
+    </code></pre>
+</li>
+<li>
+
+	Server ponechte běžet a přejděte na část 2
+</li>
+</ul>
+<h3>2. FRONTEND</h3>
+<ul>
+  <li>Ověřte, že máte nainstalovaný <strong>Node.js</strong> (doporučeno: verze 21.0.0 nebo novější) a <strong>npm</strong></li>
+  <li>Přejděte do složky s frontendem:
+    <pre><code>
+	cd frontend
+	</code></pre>
+  </li>
+  <li>Nainstalujte všechny závislosti uvedené v <code>package.json</code>:
+    <pre><code>
+	npm install
+	</code></pre>
+  </li>
+  
+  <li>Spusťte vývojový server:
+    <pre><code>
+	npm run dev
+	</code></pre>
+  </li>
+  <li>Aplikace se zpravidla otevře na adrese <code>http://localhost:5173</code> (Vite) nebo dle výstupu příkazu</li>
+</ul>
+
+
+
+</body>
+</html>
