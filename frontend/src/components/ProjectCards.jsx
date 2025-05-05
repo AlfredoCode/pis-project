@@ -55,6 +55,7 @@ function ProjectCard({ project }) {
 			<div className="card-line"><FontAwesomeIcon icon={faBook}/><p>Course: {project.course}</p></div>
 			<div className="card-line"><FontAwesomeIcon icon={faUserTie}/><p>Teacher: {`${project.owner.fullName} (${project.owner.username})`}</p></div>
 			<div className="card-line"><FontAwesomeIcon icon={faClock}/><p>Deadline: {formatDate(project.deadline)}</p></div>
+			<div className="card-line"><FontAwesomeIcon icon={faUserGroup}/><p>Registered: {project.registeredTeams}/{project.capacity}</p></div>
 			<div className="card-line"><FontAwesomeIcon icon={faUserPlus}/><p>{project.maxTeamSize > 1 ? `Team size: ${project.maxTeamSize}` : `Individual project`}</p></div>
 			<div className="card-line">
 				<button className="btn-filled-round" onClick={() => navigate(`/project/${project.id}`)}>
