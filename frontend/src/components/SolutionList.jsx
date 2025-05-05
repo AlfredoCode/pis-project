@@ -48,7 +48,7 @@ function SolutionList({ solutions, individual = false }) {
 							<td>{formatDate(solution.submissionDate)}</td>
 							<td>{solution.evaluationPoints !== null ? solution.evaluationPoints : '-'}</td>
 							<td>
-								<button className="btn-filled-round" onClick={() => navigate(`/solution/${solution.id}`)}>
+								<button className="btn-filled-round" onClick={() => navigate(`/solution/${solution.teamId}`)}>
 									Detail
 								</button>
 							</td>

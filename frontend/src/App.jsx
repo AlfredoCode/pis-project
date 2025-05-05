@@ -17,7 +17,7 @@ function App() {
 			<Route path='/' element={<LoginPage />} />
 			<Route path='/signup' element={<SignInPage />} />
 			<Route path='/home' element={<RequireAuth> <HomePage /> </RequireAuth>} />
-			<Route path='/solution/:solutionId' element={<RequireAuth> <SolutionDetailPage /> </RequireAuth>} />
+			<Route path='/solution/:teamId' element={<RequireAuth> <SolutionDetailPage /> </RequireAuth>} />
 			<Route path='/projects' element={<RequireAuth> <ProjectsPage /> </RequireAuth>} />
 			<Route path='/project/:projectId' element={<RequireAuth> <ProjectPage /> </RequireAuth>} />
 			<Route path='/project/new' element={<RequireAuth> <ProjectFormPage mode='create' /> </RequireAuth>} />

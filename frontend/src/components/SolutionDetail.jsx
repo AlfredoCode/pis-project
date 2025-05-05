@@ -215,7 +215,7 @@ function SolutionDetail({ teamId, user, projectId, history = false }) {
     <div className="solution-detail-wrapper">
       {showAlert && <Alert type={alertType} message={alertMessage} onClose={() => setShowAlert(false)} />}
       <h2>Solution 
-        {!history && (
+        {!history && solution && (
             <FaArrowRight
               size={20}
               title="Go to team page"

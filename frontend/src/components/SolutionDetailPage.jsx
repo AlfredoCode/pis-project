@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { FaArrowRight } from 'react-icons/fa'; // Import an icon
+import { FaArrowRight } from 'react-icons/fa';
 import SolutionDetail from './SolutionDetail';
 import { getCurrentUser } from '../auth';
 import api from '../api';
@@ -12,7 +12,8 @@ function SolutionDetailPage() {
   const [team, setTeam] = useState(null);
   const [projectId, setProjectId] = useState(null);
   const [user, setUser] = useState(null);
-  const { solutionId } = useParams();
+  const [solutionId, setSolutionId] = useState(null);
+  const { teamId } = useParams();
   const navigate = useNavigate();
   const [alert, setAlert] = useState(location.state?.alert || null);
 
@@ -22,26 +23,36 @@ function SolutionDetailPage() {
       setUser(fetchedUser);
     };
 
-    const fetchTeamIdFromSolution = async () => {
+    const fetchTeamAndSolution = async () => {
       try {
-        if (!solutionId) return;
-        const solutionResponse = await api(`/solutions/${solutionId}`);
-        const fetchedSolution = solutionResponse.data;
+        if (!teamId) return;
+        
+        const teamResponse = await api.get(`/teams/${teamId}`);
+        const fetchedTeam = teamResponse.data;
+        console.log(fetchedTeam)
+        setTeam({
+          teamId: fetchedTeam.id,
+          teamName: fetchedTeam.name,
+        });
+        
+        if (fetchedTeam?.lastSolution?.id) {
+          const solutionId = fetchedTeam.lastSolution.id;
+          setSolutionId(solutionId);
 
-        if (fetchedSolution && fetchedSolution.teamId) {
-          setTeam({
-            teamId: fetchedSolution.teamId,
-            teamName: fetchedSolution.teamName,
-          });
-          setProjectId(fetchedSolution.projectId);
+          const solutionResponse = await api.get(`/solutions/${solutionId}`);
+          const fetchedSolution = solutionResponse.data;
+
+          if (fetchedSolution) {
+            setProjectId(fetchedSolution.projectId);
+          }
         }
       } catch (err) {
-        // Handle error silently or log
+        console.error('Error fetching team or solution data:', err);
       }
     };
 
-    fetchTeamIdFromSolution();
     fetchUser();
+    fetchTeamAndSolution();
   }, []);
 
   const handleTeamClick = () => {
@@ -61,10 +72,10 @@ function SolutionDetailPage() {
           onClose={() => setAlert(null)}
         />
       )}
-      {team && team.teamId ? (
+      {team ? (
         <div className="content-solution">
           <h1>
-            Team: {team.teamName}{' '}
+            Team: {team.teamName}
             <FaArrowRight
               size={20}
               onClick={handleTeamClick}
@@ -76,9 +87,21 @@ function SolutionDetailPage() {
               }}
             />
           </h1>
-          <SolutionDetail user={user} teamId={team.teamId} projectId={projectId} history/>
+          {projectId ? (
+
+          <SolutionDetail
+            user={user}
+            teamId={team.teamId}
+            projectId={projectId}
+            history
+          />
+          ) :
+          <span>This team has not submitted any solution!</span>}
         </div>
-      ) : null}
+      ) : null
+
+    }
+      
     </div>
   );
 }
