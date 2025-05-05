@@ -1,28 +1,28 @@
-﻿using PRegSys.DAL.Repositories;
+using PRegSys.DAL.Repositories;
 using PRegSys.DAL.Entities;
 
 namespace PRegSys.BL.Services;
 
 public class ProjectService(ProjectRepository projects, TeamRepository teams)
 {
-    public async Task<IEnumerable<Project>> GetAllProjects()
+    public async Task<IEnumerable<ProjectView>> GetAllProjects()
     {
-        return await projects.GetAllProjects();
+        return await projects.GetAllProjectViews();
     }
 
-    public async Task<Project?> GetProjectById(int id)
+    public async Task<ProjectView?> GetProjectById(int id)
     {
-        return await projects.GetProjectById(id);
+        return await projects.GetProjectViewById(id);
     }
 
-    public async Task<IEnumerable<Project>> GetProjectsInCourse(string course)
+    public async Task<IEnumerable<ProjectView>> GetProjectsInCourse(string course)
     {
-        return await projects.GetProjectsInCourse(course);
+        return await projects.GetProjectViewsInCourse(course);
     }
 
-    public async Task<IEnumerable<Project>> GetProjectsByOwnerId(int userId)
+    public async Task<IEnumerable<ProjectView>> GetProjectsByOwnerId(int userId)
     {
-        return await projects.GetProjectsByOwnerId(userId);
+        return await projects.GetProjectViewsByOwnerId(userId);
     }
 
     public async Task<IEnumerable<(Project project, Team? team)>> GetStudentViews(Student student)
@@ -39,14 +39,14 @@ public class ProjectService(ProjectRepository projects, TeamRepository teams)
         return (team.Project, team);
     }
 
-    public async Task<ProjectTeacherView?> GetTeacherView(int teacherId, int projectId)
+    public async Task<ProjectView?> GetTeacherView(int teacherId, int projectId)
     {
-        return await projects.GetProjectTeacherView(teacherId, projectId);
+        return await projects.GetProjectView(teacherId, projectId);
     }
 
-    public async Task<IEnumerable<ProjectTeacherView>> GetTeacherViews(int teacherId)
+    public async Task<IEnumerable<ProjectView>> GetTeacherViews(int teacherId)
     {
-        return await projects.GetProjectTeacherViews(teacherId);
+        return await projects.GetProjectViewsByOwnerId(teacherId);
     }
 
     public async Task<Project> CreateProject(Project project)

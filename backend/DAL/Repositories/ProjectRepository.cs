@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 
 using PRegSys.DAL.Entities;
 
@@ -15,6 +15,13 @@ public class ProjectRepository(PregsysDbContext db)
     public async Task<Project?> GetProjectById(int id)
         => await ProjectsQuery.FirstOrDefaultAsync(p => p.Id == id);
 
+    public async Task<IEnumerable<ProjectView>> GetAllProjectViews()
+        => await GetProjectViewQuery(ProjectsQuery).ToListAsync();
+
+    public async Task<ProjectView?> GetProjectViewById(int id)
+        => await GetProjectViewQuery(ProjectsQuery.Where(p => p.Id == id))
+            .SingleOrDefaultAsync();
+
     public async Task<IEnumerable<Project>> GetProjectsInCourse(string course)
     {
         return await ProjectsQuery
@@ -22,26 +29,32 @@ public class ProjectRepository(PregsysDbContext db)
             .ToListAsync();
     }
 
-    public async Task<ProjectTeacherView?> GetProjectTeacherView(int teacherId, int projectId)
+    public async Task<IEnumerable<ProjectView>> GetProjectViewsInCourse(string course)
     {
-        return await GetProjectTeacherViewQuery(ProjectsQuery
+        return await GetProjectViewQuery(ProjectsQuery
+                .Where(p => p.Course == course))
+            .ToListAsync();
+    }
+
+    public async Task<ProjectView?> GetProjectView(int teacherId, int projectId)
+    {
+        return await GetProjectViewQuery(ProjectsQuery
                 .Where(p => p.OwnerId == teacherId && p.Id == projectId))
             .SingleOrDefaultAsync();
     }
 
-    public async Task<IEnumerable<ProjectTeacherView>> GetProjectTeacherViews(int teacherId)
+    public async Task<IEnumerable<ProjectView>> GetProjectViewsByOwnerId(int teacherId)
     {
-        return await GetProjectTeacherViewQuery(ProjectsQuery
+        return await GetProjectViewQuery(ProjectsQuery
                 .Where(p => p.OwnerId == teacherId))
             .ToListAsync();
     }
 
-    IQueryable<ProjectTeacherView> GetProjectTeacherViewQuery(IQueryable<Project> projects) =>
+    IQueryable<ProjectView> GetProjectViewQuery(IQueryable<Project> projects) =>
         from p in projects
-            .Include(p => p.Teams).ThenInclude(t => t.Solutions!).ThenInclude(s => s!.Evaluation).ThenInclude(e => e!.Teacher)
-        let registeredTeams = db.Teams.Count(t => t.ProjectId == p.Id)
-        let teamsWithSubmissions = db.Teams.Count(t => t.ProjectId == p.Id && t.Solutions!.Any())
-        select new ProjectTeacherView(p, registeredTeams, teamsWithSubmissions);
+        let registeredTeams = p.Teams.Count
+        let teamsWithSubmissions = p.Teams.Count(t => t.Solutions!.Any())
+        select new ProjectView(p, registeredTeams, teamsWithSubmissions);
 
     public async Task<IEnumerable<Project>> GetProjectsByOwnerId(int id)
     {
@@ -70,4 +83,4 @@ public class ProjectRepository(PregsysDbContext db)
     }
 }
 
-public record ProjectTeacherView(Project Project, int RegisteredTeams, int TeamsWithSubmissions);
+public record ProjectView(Project Project, int RegisteredTeams, int TeamsWithSubmissions);

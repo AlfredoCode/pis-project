@@ -1,4 +1,4 @@
-﻿using NodaTime;
+using NodaTime;
 
 using PRegSys.DAL.Entities;
 using PRegSys.DAL.Repositories;
@@ -25,10 +25,10 @@ public class ProjectStudentViewDto(Project project, Team? team, Student student)
     public StudentReadDto Student { get; } = student.ToDto();
 }
 
-public class ProjectTeacherViewDto(ProjectTeacherView ptv) : ProjectReadDto(ptv.Project)
+public class ProjectViewDto(ProjectView pv) : ProjectReadDto(pv.Project)
 {
-    public int RegisteredTeams { get; } = ptv.RegisteredTeams;
-    public int TeamsWithSubmissions { get; } = ptv.TeamsWithSubmissions;
+    public int RegisteredTeams { get; } = pv.RegisteredTeams;
+    public int TeamsWithSubmissions { get; } = pv.TeamsWithSubmissions;
 }
 
 public class ProjectWriteDto : IWriteDto<ProjectWriteDto, Project>
@@ -57,4 +57,9 @@ public class ProjectWriteDto : IWriteDto<ProjectWriteDto, Project>
 }
 
 [GenerateDtoExtensions<Project, ProjectReadDto, ProjectWriteDto>]
-public static partial class ProjectDtoExtensions;
+public static partial class ProjectDtoExtensions
+{
+    public static ProjectViewDto ToDto(this ProjectView pv) => new(pv);
+    public static IEnumerable<ProjectViewDto> ToDto(this IEnumerable<ProjectView> pvs)
+        => pvs.Select(pv => new ProjectViewDto(pv));
+}

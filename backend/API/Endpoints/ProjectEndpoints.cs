@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using PRegSys.API.DTO;
 using PRegSys.BL.Services;
 using PRegSys.DAL.Entities;
+using PRegSys.DAL.Repositories;
 
 namespace PRegSys.API.Endpoints;
 
@@ -14,7 +15,7 @@ public class ProjectEndpoints : IEndpointDefinition
     public void RegisterEndpoints(RouteGroupBuilder group)
     {
         group.MapGet("/projects",
-            async Task<IEnumerable<ProjectReadDto>> (
+            async Task<IEnumerable<ProjectViewDto>> (
                 ProjectService projects,
                 [Description("filter projects by which course they belong to")] string? course = null) =>
             {
@@ -25,16 +26,16 @@ public class ProjectEndpoints : IEndpointDefinition
             .WithName("GetAllProjects");
 
         group.MapGet("/projects/{id}",
-            async Task<Results<Ok<ProjectReadDto>, NotFound>> (ProjectService projects, int id) =>
+            async Task<Results<Ok<ProjectViewDto>, NotFound>> (ProjectService projects, int id) =>
             {
-                return (await projects.GetProjectById(id) is Project project)
+                return (await projects.GetProjectById(id) is ProjectView project)
                     ? TypedResults.Ok(project.ToDto())
                     : TypedResults.NotFound();
             })
             .WithName("GetProjectById");
 
         group.MapGet("/users/{userId}/projects",
-            async Task<Results<Ok<IEnumerable<ProjectStudentViewDto>>, Ok<IEnumerable<ProjectTeacherViewDto>>, NotFound>>
+            async Task<Results<Ok<IEnumerable<ProjectStudentViewDto>>, Ok<IEnumerable<ProjectViewDto>>, NotFound>>
                 (UserService users, ProjectService projects, int userId) =>
             {
                 switch (await users.GetUserById(userId))
@@ -48,8 +49,7 @@ public class ProjectEndpoints : IEndpointDefinition
                     case Teacher teacher:
                     {
                         var ownedProjects = await projects.GetTeacherViews(teacher.Id);
-                        return TypedResults.Ok(ownedProjects
-                            .Select(p => new ProjectTeacherViewDto(p)));
+                        return TypedResults.Ok(ownedProjects.ToDto());
                     }
                 }
                 return TypedResults.NotFound();
@@ -62,7 +62,7 @@ public class ProjectEndpoints : IEndpointDefinition
                 """);
 
         group.MapGet("/users/{userId}/projects/{projectId}",
-            async Task<Results<Ok<ProjectStudentViewDto>, Ok<ProjectTeacherViewDto>, NotFound>>
+            async Task<Results<Ok<ProjectStudentViewDto>, Ok<ProjectViewDto>, NotFound>>
                 (UserService users, ProjectService projects, int userId, int projectId) => {
                     switch (await users.GetUserById(userId))
                     {
@@ -76,7 +76,7 @@ public class ProjectEndpoints : IEndpointDefinition
                         {
                             var teacherView = await projects.GetTeacherView(teacher.Id, projectId);
                             return teacherView is not null
-                                ? TypedResults.Ok(new ProjectTeacherViewDto(teacherView))
+                                ? TypedResults.Ok(teacherView.ToDto())
                                 : TypedResults.NotFound();
                         }
                     }
