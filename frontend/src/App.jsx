@@ -8,6 +8,7 @@ import ProjectPage from './components/ProjectPage';
 import TeamDetailPage from './components/TeamDetailPage';
 import ProjectFormPage from './components/ProjectFormPage';
 import TeamFormPage from './components/TeamFormPage';
+import SolutionDetailPage from './components/SolutionDetailPage';
 
 function App() {
 	return (
@@ -16,6 +17,7 @@ function App() {
 			<Route path='/' element={<LoginPage />} />
 			<Route path='/signup' element={<SignInPage />} />
 			<Route path='/home' element={<RequireAuth> <HomePage /> </RequireAuth>} />
+			<Route path='/solution/:solutionId' element={<RequireAuth> <SolutionDetailPage /> </RequireAuth>} />
 			<Route path='/projects' element={<RequireAuth> <ProjectsPage /> </RequireAuth>} />
 			<Route path='/project/:projectId' element={<RequireAuth> <ProjectPage /> </RequireAuth>} />
 			<Route path='/project/new' element={<RequireAuth> <ProjectFormPage mode='create' /> </RequireAuth>} />

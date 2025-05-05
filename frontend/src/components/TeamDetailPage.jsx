@@ -132,47 +132,47 @@ function TeamDetailPage() {
     navigate(`/team/edit/${team.id}`, { state: { team } });
   };
 
-  useEffect(() => {
-    async function fetchAllData() {
-      if (!tId) return;
-  
-      setLoading(true);
-      try {
-        // First, fetch user
-        const fetchedUser = await getCurrentUser();
-        setUser(fetchedUser);
-  
-        // Then fetch team info
-        const teamRes = await api.get(`/teams/${tId}`);
-        setTeam(teamRes.data);
-  
-        const projectId = teamRes.data.project.id;
-  
-        // Fetch project, students, signup requests at the same time
-        const [projectRes, studentsRes, signupRequestsRes] = await Promise.all([
-          api.get(`/projects/${projectId}`),
-          api.get(`/teams/${tId}/students`),
-          api.get(`/teams/${tId}/signuprequests`)
-        ]);
-  
-        setStudents(studentsRes.data);
-  
-        const createdRequests = signupRequestsRes.data.filter(req => req.state === "Created");
-        setSignupRequests(createdRequests);
-  
-        setProject(projectRes.data);
-  
-        // Finally, now that user is loaded, fetch user-specific signup requests
-        const userSignupRequestsRes = await api.get(`/students/${fetchedUser.id}/signuprequests`);
-        setUserSignupRequests(userSignupRequestsRes.data);
-  
-      } catch (error) {
-        console.error('Error fetching data:', error);
-        setError('Failed to load team details. Please try again later.');
-      } finally {
-        setLoading(false);
-      }
+  async function fetchAllData() {
+    if (!tId) return;
+
+    setLoading(true);
+    try {
+      // First, fetch user
+      const fetchedUser = await getCurrentUser();
+      setUser(fetchedUser);
+
+      // Then fetch team info
+      const teamRes = await api.get(`/teams/${tId}`);
+      setTeam(teamRes.data);
+
+      const projectId = teamRes.data.project.id;
+
+      // Fetch project, students, signup requests at the same time
+      const [projectRes, studentsRes, signupRequestsRes] = await Promise.all([
+        api.get(`/projects/${projectId}`),
+        api.get(`/teams/${tId}/students`),
+        api.get(`/teams/${tId}/signuprequests`)
+      ]);
+
+      setStudents(studentsRes.data);
+
+      const createdRequests = signupRequestsRes.data.filter(req => req.state === "Created");
+      setSignupRequests(createdRequests);
+
+      setProject(projectRes.data);
+
+      // Finally, now that user is loaded, fetch user-specific signup requests
+      const userSignupRequestsRes = await api.get(`/students/${fetchedUser.id}/signuprequests`);
+      setUserSignupRequests(userSignupRequestsRes.data);
+
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      setError('Failed to load team details. Please try again later.');
+    } finally {
+      setLoading(false);
     }
+  }
+  useEffect(() => {
   
     fetchAllData();
   }, [tId]);
@@ -266,7 +266,9 @@ function TeamDetailPage() {
   };
 
   const hasAlreadyApplied = userSignupRequests.some(req => req.team.id === team.id && req.state === 'Created');
-
+  useEffect(()=> {
+    fetchAllData()
+  }, [])
   if (loading) {
     return (
       <div className='main-content-wrapper'>

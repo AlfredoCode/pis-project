@@ -2,8 +2,11 @@ import React, { useEffect, useState, useRef } from 'react';
 import api from '../api';
 import Alert from './Alert'; // Import the Alert component
 import '../styles/solution-detail.css';
+import { FaArrowRight } from 'react-icons/fa';
+import { Navigate, useNavigate } from 'react-router-dom';
 
-function SolutionDetail({ teamId, user, projectId }) {
+
+function SolutionDetail({ teamId, user, projectId, history = false }) {
   const [solution, setSolution] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -19,15 +22,18 @@ function SolutionDetail({ teamId, user, projectId }) {
   
   // Create a ref for the file input
   const fileInputRef = useRef(null);
-
-  async function fetchSolutionAndEvaluation() {
+  const navigate = useNavigate()
+  async function fetchSolutionAndEvaluation(tId = undefined) {
     try {
-      const teamResponse = await api.get(`/teams/${teamId}/`);
+      console.log(tId)
+      const finalTeamId = teamId || tId;
+      const teamResponse = await api.get(`/teams/${finalTeamId}/`);
+      console.log(teamResponse)
       const lastSolution = teamResponse.data.lastSolution;
       setSolution(lastSolution);
 
       // Fetching solution history
-      const solutionsResponse = await api.get(`/teams/${teamId}/solutions`);
+      const solutionsResponse = await api.get(`/teams/${finalTeamId}/solutions`);
       setSolutionHistory(solutionsResponse.data);
 
       if (lastSolution && lastSolution.id) {
@@ -48,7 +54,10 @@ function SolutionDetail({ teamId, user, projectId }) {
       setLoading(false);
     }
   }
-
+  
+  const handleGoToSolution = () => {
+    navigate(`/solution/${teamId}`)
+  }
   useEffect(() => {
     if (!teamId) return;
     fetchSolutionAndEvaluation();
@@ -74,12 +83,17 @@ function SolutionDetail({ teamId, user, projectId }) {
 
     api.post('/evaluations', evaluationData)
       .then(() => {
-        alert('Evaluation submitted successfully');
+        // alert('Evaluation submitted successfully');
+        setAlertMessage('Solution evaluated successfully');
+        setAlertType('success');
+        setShowAlert(true);
         setEvaluating(false);
       })
       .catch((err) => {
         setEvaluating(false);
-        alert('Failed to submit evaluation');
+        setAlertMessage('Failed to submit evaluation');
+        setAlertType('error');
+        setShowAlert(true);
       });
   };
 
@@ -97,7 +111,10 @@ function SolutionDetail({ teamId, user, projectId }) {
 
   const handleUploadSolution = async () => {
     if (!selectedFile) {
-      alert('No file selected');
+      // alert('No file selected');
+      setAlertMessage('No file selected');
+      setAlertType('error');
+      setShowAlert(true);
       return;
     }
 
@@ -197,11 +214,26 @@ function SolutionDetail({ teamId, user, projectId }) {
   return (
     <div className="solution-detail-wrapper">
       {showAlert && <Alert type={alertType} message={alertMessage} onClose={() => setShowAlert(false)} />}
-      <h2>Solution</h2>
+      <h2>Solution 
+        {!history && (
+            <FaArrowRight
+              size={20}
+              title="Go to team page"
+              onClick={handleGoToSolution}
+              style={{
+                cursor: 'pointer',
+                color: '#007bff',
+                marginLeft: '8px',
+              }}
+            />
+
+        )}
+      </h2>
+      
       <div className="solution-detail-card">
         {solution ? (
           <>
-            {user.role === 'Student' && (
+            {user && user.role === 'Student' && (
               <div className="upload-solution-section">
                 <input
                   ref={fileInputRef} // Attach the ref to the input field
@@ -235,7 +267,7 @@ function SolutionDetail({ teamId, user, projectId }) {
 
             <div className="points-container">
               <strong>Points:</strong>
-              {user.role === 'Teacher' ? (
+              {user && user.role === 'Teacher' ? (
                 <input
                   type="number"
                   value={points}
@@ -252,7 +284,7 @@ function SolutionDetail({ teamId, user, projectId }) {
 
             <div className="comment-container">
               <strong>Comment:</strong>
-              {user.role === 'Teacher' ? (
+              {user && user.role === 'Teacher' ? (
                 <input
                   value={comment}
                   onChange={handleCommentChange}
@@ -265,7 +297,7 @@ function SolutionDetail({ teamId, user, projectId }) {
               )}
             </div>
 
-            {user.role === 'Teacher' && (
+            {user && user.role === 'Teacher' && (
               <div className="evaluate-section">
                 <button
                   className="evaluate-button"
@@ -278,7 +310,7 @@ function SolutionDetail({ teamId, user, projectId }) {
             )}
           </>
         ) : (
-          user.role === 'Student' && (
+          user && user.role === 'Student' && (
             <div className="upload-solution-section">
               <input
                 ref={fileInputRef} // Attach the ref to the input field
@@ -297,7 +329,7 @@ function SolutionDetail({ teamId, user, projectId }) {
           )
         )}
 
-        {solutionHistory.length > 0 && (
+        {history && solutionHistory.length > 0 && (
           <div className="solution-history-section">
             <h3>Solution History</h3>
             <div className="solution-history-list">
