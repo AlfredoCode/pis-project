@@ -22,6 +22,7 @@ function ProjectPage() {
     const [isInv, setIsInv] = useState(false); // True if Student is registerd on project OR Teacher is owner of project
     const [project, setProject] = useState(null);
 	const [teams, setTeams] = useState([]);
+    const [teamSolution, setTeamSolution] = useState([]); 
 	const [solutions, setSolutions] = useState([]);
     const [user, setUser] = useState(null)
     const now = new Date();
@@ -70,10 +71,19 @@ function ProjectPage() {
           // Fetch solutions if needed
           if (fetchedUser.role === 'Student' && isInvTemp && studentTeamIdTemp) {
             const res = await api.get(`/teams/${studentTeamIdTemp}/solutions`);
-            setSolutions(res.data);
+            setTeamSolution(res.data[0]);
           } else if (fetchedUser.role === 'Teacher' && isInvTemp) {
             const res = await api.get(`/projects/${projectId}/solutions`);
-            setSolutions(res.data);
+            // Pick just lates solution for each team
+            const latestSolutions = {};
+            res.data.forEach(solution => {
+                const existing = latestSolutions[solution.teamId];
+                if (!existing || new Date(solution.submissionDate) > new Date(existing.submissionDate)) {
+                    latestSolutions[solution.teamId] = solution;
+                }
+            });
+            const latestSolutionsArray = Object.values(latestSolutions);
+            setSolutions(latestSolutionsArray);
           }
       
           setLoading(false);
@@ -189,13 +199,13 @@ function ProjectPage() {
                             <li>
                                 <strong>Submission date:</strong> 
                                 <span>
-                                    {project.team?.solution?.submissionDate ? formatDate(project.team?.solution?.submissionDate) : 'No submissions'}
-                                    {project.team?.solution?.submissionDate && (
-                                        <button className="btn-filled-round" onClick={() => navigate(`/solution/${project.team.solution.id}`)}>Solution detail</button>
+                                    {teamSolution.submissionDate ? formatDate(teamSolution.submissionDate) : 'No submissions'}
+                                    {teamSolution.submissionDate && (
+                                        <button className="btn-filled-round" onClick={() => navigate(`/solution/${teamSolution.teamId}`)}>Solution detail</button>
                                     )}
                                 </span>
                             </li>
-                            <li><strong>Evaluation:</strong> {project.team?.solution?.evaluationPoints || 'Not evaluated'}</li>
+                            <li><strong>Evaluation:</strong> {teamSolution.evaluationPoints || 'Not evaluated'}</li>
                         </ul>
                         {(new Date(project.deadline) >= now) && (
                             <button className="btn-filled-round" onClick={handleAddSolution}>Add new solution</button>

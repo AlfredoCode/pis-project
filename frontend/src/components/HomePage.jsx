@@ -47,8 +47,6 @@ function HomePage() {
 						course: project.course,
 						owner: project.owner,
 						deadline: project.deadline,
-						submissionDate: project.team.solution?.submissionDate ?? null,
-						points: project.team.solution?.evaluationPoints ?? null,
 						isTeamProject: project.maxTeamSize === 1 ? false : true,
 						teamName: project.team.name
 					}));
