@@ -1,4 +1,4 @@
-﻿using PRegSys.DAL.Entities;
+using PRegSys.DAL.Entities;
 using PRegSys.DAL.Enums;
 using PRegSys.DAL.Repositories;
 
@@ -60,11 +60,10 @@ public class SignUpRequestService(
         if (await signUpRequests.GetRequestById(requestId) is not SignUpRequest request)
             return false;
 
-        // TODO: check if the team leader is the one who is accepting/rejecting the request
-
         var students = await teams.GetStudentsInTeam(request.TeamId);
+
         // check if there is enough space in the team for the student
-        if (students?.Count() == request.Team.Project.Capacity)
+        if (students?.Count() >= request.Team.Project.MaxTeamSize)
         {
             throw new InvalidOperationException($"The team ('{request.Team.Name}') is already full");
         }
