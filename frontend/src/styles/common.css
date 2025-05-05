@@ -66,7 +66,7 @@
     flex-direction: column;
     justify-content: start;
     align-items: center;
-    height: 100vh;
+    max-height: 100%;
     width: 100%;
     padding-top: 5vh;
     color: var(--color-text1);
