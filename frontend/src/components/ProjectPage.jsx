@@ -199,13 +199,13 @@ function ProjectPage() {
                             <li>
                                 <strong>Submission date:</strong> 
                                 <span>
-                                    {teamSolution.submissionDate ? formatDate(teamSolution.submissionDate) : 'No submissions'}
-                                    {teamSolution.submissionDate && (
+                                    {teamSolution?.submissionDate ? formatDate(teamSolution.submissionDate) : 'No submissions'}
+                                    {teamSolution?.submissionDate && (
                                         <button className="btn-filled-round" onClick={() => navigate(`/solution/${teamSolution.teamId}`)}>Solution detail</button>
                                     )}
                                 </span>
                             </li>
-                            <li><strong>Evaluation:</strong> {teamSolution.evaluationPoints || 'Not evaluated'}</li>
+                            <li><strong>Evaluation:</strong> {teamSolution?.evaluationPoints || 'Not evaluated'}</li>
                         </ul>
                         {(new Date(project.deadline) >= now) && (
                             <button className="btn-filled-round" onClick={handleAddSolution}>Add new solution</button>
